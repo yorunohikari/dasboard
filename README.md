@@ -1,159 +1,90 @@
 # ▦ DasBoard
 
-A lightweight, browser-native board system for organizing movable cards. No backend. No account. No build step. Just one HTML file.
-
-> *Das* — German definite article. The board. **The** board.
+I made this because I wanted a simple board tool that doesn't require an account, doesn't phone home, and doesn't make me install Node just to look at a sticky note. Vibecoded with Claude. Hosted on Neocities because that's still a thing and I love it.
 
 **Live →** [goshintai.neocities.org/dasboard](https://goshintai.neocities.org/dasboard/)
 
 ---
 
-## Philosophy
+## What it is
 
-**Object-first.** Not productivity software. Not project management. Not note-taking.
+Boards and cards. That's it. You can drag them around, put images on them, zoom out to see everything at once, zoom in to read stuff. It lives entirely in your browser — no server, no account, no tracking. Close the tab and your data is still there next time.
 
-Just boards and cards — fast, physical, yours.
-
-- **Local-first** — everything lives in your browser. No server ever sees your data.
-- **Zero dependencies** — one `index.html`, drop it anywhere.
-- **Instant** — no loading screens, no save buttons, no page reloads.
-- **Offline** — works with no internet after the first load (fonts aside).
-- **You own your data** — stored in `localStorage`, exportable, importable, deletable.
-
-Notion is document-first. Trello is workflow-first. DasBoard is object-first.
+It's not Notion. It's not Trello. Those are great but they're also a lot. This is just the boards-and-cards part.
 
 ---
 
-## Features
+## What it does
 
-### Boards & Cards
-- Create, rename, delete boards
-- Create, edit, delete cards with title and description
-- Drag cards between boards and reorder within boards — with live ghost placeholder showing exact drop position
-- Drag boards left and right to reorder them
-- Masonry column layout per board — type any number 1–8
-- Custom board color per board — 8 palettes, adapts to light and dark mode
-- Empty board hint when no cards present
-- Drag card to trash bin to delete
+**Boards**
+- Create, rename, delete
+- Set how many columns of cards you want (1 to 8)
+- Pick a color — different palettes for light and dark mode
+- Drag to reorder
+- Double-click the header to edit settings
 
-### Editing
-- **Double-click** any card to enter edit mode — title, description, image
-- **Double-click** board header to open board settings — rename, columns, color
-- Text wraps naturally, card height adapts to content
-- Click outside or `Escape` to save and exit
-- Image upload with fullscreen lightbox on click
+**Cards**
+- Title and description, both auto-resize to content
+- Attach an image — it gets compressed and stored locally
+- Click the image to open it fullscreen
+- Double-click to edit, click outside to save
+- Drag between boards, drag to reorder within a board
+- Ghost placeholder shows exactly where the card will land
 
-### Context Menu (right-click)
-- **On a card** — Edit, Move to top, Move to bottom, Duplicate, Copy, Cut, Move to board, Delete
-- **On a board header** — Edit board, Paste card, Move left, Move right, Delete board
-- **On empty canvas** — New board, Reset zoom
-- Cut puts card in ghost state (faded + dashed border) until pasted or cancelled
-- Copy and paste work across boards — no drag needed
+**Right-click menu**
+- On a card: edit, move to top/bottom, duplicate, copy, cut, move to another board, delete
+- On a board: edit, paste, move left/right, delete
+- On empty canvas: new board, reset zoom
+- Cut leaves a ghost card in place until you paste it somewhere
 
-### Infinite Canvas
-- **Scroll** — zoom in/out centered on cursor
-- **Shift+scroll** — pan horizontally
-- **Ctrl+scroll** — pan vertically
-- **Middle-mouse drag** — free pan (does not trigger card drag)
-- Zoom range: 20% → 300%
-- Zoom indicator bottom-right — click to reset to 100%
+**Canvas**
+- Scroll to zoom (centered on cursor)
+- Shift+scroll to pan sideways
+- Ctrl+scroll to pan up/down
+- Middle-mouse drag to pan freely
+- 20% to 300% zoom range
 
-### Settings
-- Light and dark theme with smooth transition
-- Adjustable card title and description font sizes
-- Storage meter — shows localStorage usage out of ~5MB
-- Export all data as JSON (timestamped file)
-- Import from a previous export
-- About modal with changelog
-
-### UI Details
-- IBM Plex Mono + IBM Plex Sans
-- Icons by [Icons8](https://icons8.com)
-- Toast notifications for clipboard actions
-- SEO and Open Graph meta tags for social preview
+**Settings**
+- Dark/light mode
+- Card font size controls
+- Storage meter (localStorage, ~5MB limit)
+- Export everything as JSON, import it back
 
 ---
 
-## Usage
+## Using it
 
-### Neocities / any static host
+Download `index.html`. Open it. Done. No npm, no build step, no nothing.
 
-1. Download `index.html`
-2. Upload to [Neocities](https://neocities.org), GitHub Pages, or any static host
-3. Open in browser — done
-
-### Local
-
-```bash
-# No server needed — just open the file
-open index.html
-```
-
-That's it. There is no step 2.
-
----
-
-## Keyboard Shortcuts
-
-| Action | Shortcut |
-|---|---|
-| Exit edit mode | `Escape` |
-| Confirm title edit | `Enter` |
-| Cancel cut / close menus | `Escape` |
-| Close lightbox | `Escape` |
+If you want it online, upload it to Neocities or GitHub Pages or literally any static host. It's one file.
 
 ---
 
 ## Storage
 
-All data is stored in `localStorage`. Images are compressed and stored as base64 WebP data URLs — fully self-contained, no external references.
+Everything goes into `localStorage` — boards, cards, images. Images are resized to max 768px, compressed to WebP at 0.75 quality, and stored as base64 strings. That's why the storage limit exists (~5MB per origin). The meter in Settings shows you how much you've used.
 
-**Image pipeline:**
-```
-File → FileReader (data URL) → Canvas resize (max 768px) → WebP (quality 0.75) → base64 → localStorage
-```
+Export your data regularly if you care about it. The browser can wipe localStorage if you clear your cache. You've been warned, I've been warned, we've all been warned.
 
-**Limits:** ~5MB per origin. Text-only boards hold thousands of cards comfortably. With images, roughly 10–20 depending on content. The storage meter in Settings gives you a live read.
-
-**Neocities CSP note:** Neocities blocks `blob:` URLs. DasBoard avoids this entirely by using `FileReader.readAsDataURL()` — no `URL.createObjectURL()` is ever called at any stage.
-
-**Export / import:** Settings → Export JSON downloads a complete snapshot of all boards and cards including images. Import replaces current data after confirmation.
+**Neocities CSP:** Neocities blocks `blob:` URLs so all image handling goes through `FileReader.readAsDataURL()` instead — no blob URLs ever created.
 
 ---
 
 ## Stack
 
-| Concern | Solution |
-|---|---|
-| Language | Vanilla JS (ES2020) |
-| Styling | Plain CSS with custom properties |
-| Storage | `localStorage` |
-| Images | `FileReader` + `Canvas` + `toDataURL` |
-| Drag | Custom mouse event system |
-| Canvas | CSS `transform: translate + scale` |
-| Fonts | IBM Plex Mono + IBM Plex Sans (Google Fonts) |
-| Icons | Icons8 (iOS style) |
-| Dependencies | **None** |
-| Build step | **None** |
-| Bundle size | One HTML file |
+Vanilla JS. Plain CSS. No frameworks, no bundler, no package.json. `localStorage` for persistence. Custom mouse event system for drag. CSS `transform` for the infinite canvas. Icons from [Icons8](https://icons8.com). Fonts from Google Fonts (IBM Plex Mono + IBM Plex Sans).
+
+One file. Currently ~2500 lines. Readable by a human.
 
 ---
 
 ## Changelog
 
-### v0.1.0 — 2026, initial release
-- Boards & cards with drag-and-drop
-- Infinite canvas — pan & zoom
-- Double-click to edit cards & boards
-- Image upload with WebP compression
-- Masonry columns per board (1–8)
-- Custom board colors, light & dark mode
-- Context menu — cut, copy, paste, duplicate
-- Move to board, move to top/bottom
-- Image lightbox, drag-to-trash
-- Export & import as JSON
-- Storage meter, font size settings
-- No account. No server. No tracking.
+**v0.1.0 — 2026**
+First release. Boards, cards, drag and drop, infinite canvas, double-click editing, masonry columns, board colors, context menu with clipboard, image upload and lightbox, export/import, storage meter, dark mode.
+
+**Coming next**
+PWA support — install to homescreen, works fully offline after first load.
 
 ---
 
@@ -166,35 +97,21 @@ File → FileReader (data URL) → Canvas resize (max 768px) → WebP (quality 0
 - [x] Custom board colors
 - [x] Infinite canvas (pan + zoom)
 - [x] Double-click to edit
-- [x] Context menu with full clipboard model
+- [x] Context menu with clipboard (cut/copy/paste)
 - [x] Image upload + lightbox
 - [x] Dark mode
 - [x] Export / import JSON
 - [x] Storage meter
 - [x] Live search
 - [ ] PWA — install to homescreen, full offline
-- [ ] Keyboard shortcuts (N, B, /)
-- [ ] Markdown in card descriptions
+- [ ] Keyboard shortcuts
+- [ ] Markdown in descriptions
 - [ ] Card color labels
-- [ ] Pinned cards
 - [ ] Undo / redo
 - [ ] Tags and filters
-- [ ] Multi-select drag
-
----
-
-## Browser Support
-
-Any modern browser — Chrome, Firefox, Safari, Edge.
-
-`localStorage` must be enabled. Private/incognito mode may clear data on session end depending on browser settings.
 
 ---
 
 ## License
 
-Do whatever you want with it. It's one HTML file.
-
----
-
-*Built for the web the way the web used to feel — fast, local, yours.*
+Do whatever you want.
