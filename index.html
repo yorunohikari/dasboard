@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DasBoard</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/dasboard/favicon-32x32.png">
+  <meta name="description"
+    content="DasBoard — a lightweight, local-first board system for organizing movable cards. No account, no tracker, fully offline.">
+  <meta name="keywords" content="kanban, board, cards, local, offline, organizer, tool">
+  <meta name="author" content="goshintai">
+
+  <!-- Open Graph (Facebook, Discord, etc) -->
+  <meta property="og:title" content="DasBoard">
+  <meta property="og:description"
+    content="A lightweight local-first board system for organizing movable cards. No account. No tracker. Fully yours.">
+  <meta property="og:image" content="https://goshintai.neocities.org/dasboard/thumbnail.jpg">
+  <meta property="og:url" content="https://goshintai.neocities.org/dasboard/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DasBoard">
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DasBoard">
+  <meta name="twitter:description"
+    content="A lightweight local-first board system for organizing movable cards. No account. No tracker. Fully yours.">
+  <meta name="twitter:image" content="https://goshintai.neocities.org/dasboard/thumbnail.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f0e8;
+      --bg2: #ebe6dc;
+      --bg3: #faf7f2;
+      --border: #d8d3c8;
+      --border2: #e0dbd0;
+      --text: #1a1a1a;
+      --text2: #6b6560;
+      --accent: #2a5f2a;
+      --accent-faint: rgba(42, 95, 42, 0.06);
+      --shadow: rgba(0, 0, 0, 0.08);
+      --shadow2: rgba(0, 0, 0, 0.13);
+      --card-title-size: 13px;
+      --card-content-size: 11px;
+    }
+
+    .dark {
+      --bg: #0e0e0e;
+      --bg2: #171717;
+      --bg3: #1e1e1e;
+      --border: #2a2a2a;
+      --border2: #323232;
+      --text: #e8e4d8;
+      --text2: #777;
+      --accent: #a8ff78;
+      --accent-faint: rgba(168, 255, 120, 0.07);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --shadow2: rgba(0, 0, 0, 0.7);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      transition: background 0.25s, color 0.25s;
+      overflow: hidden;
+    }
+
+    /* smooth theme transitions for key surfaces */
+    .board,
+    .card,
+    #topbar,
+    #settings-panel,
+    .board-edit-panel,
+    #zoom-indicator,
+    #trash-bin,
+    .btn {
+      transition: background 0.25s, border-color 0.25s, color 0.25s, box-shadow 0.25s;
+    }
+
+    /* ── Topbar ── */
+    #topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      z-index: 100;
+    }
+
+    #logo {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      opacity: 0.65;
+      margin-right: 6px;
+      user-select: none;
+    }
+
+    #search {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      width: 200px;
+      font-family: inherit;
+      transition: border-color 0.15s, width 0.2s;
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+      width: 260px;
+    }
+
+    #search::placeholder {
+      color: var(--text2);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .dark .btn:hover {
+      color: #111;
+    }
+
+    #new-board-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    #new-board-input {
+      background: var(--bg3);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    #new-board-input:focus {
+      outline: none;
+    }
+
+    /* ── Workspace (infinite canvas viewport) ── */
+    #workspace {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+      cursor: default;
+    }
+
+    #workspace.panning {
+      cursor: grabbing;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 40px;
+      transform-origin: 0 0;
+      will-change: transform;
+      /* no transition — must be instant during pan/zoom */
+    }
+
+    /* zoom indicator */
+    #zoom-indicator {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+      z-index: 500;
+      user-select: none;
+    }
+
+    #zoom-indicator:hover {
+      opacity: 1;
+    }
+
+    /* ── Trash bin ── */
+    #trash-bin {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      width: 38px;
+      height: 38px;
+      display: none;
+      /* only visible while dragging a card */
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      z-index: 500;
+      cursor: default;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+      user-select: none;
+    }
+
+    #trash-bin.active {
+      background: #c0392b;
+      border-color: #c0392b;
+      transform: scale(1.15);
+    }
+
+    #trash-bin.active .trash-icon {
+      filter: none;
+    }
+
+    .trash-icon {
+      opacity: 0.55;
+      transition: opacity 0.15s;
+      font-style: normal;
+    }
+
+    #trash-bin.active .trash-icon {
+      opacity: 1;
+    }
+
+    /* ── Board ── */
+    .board {
+      --board-cols: 1;
+      --board-bg: var(--bg2);
+      --board-card-bg: var(--bg3);
+      width: calc(var(--board-cols) * 220px + (var(--board-cols) - 1) * 8px + 24px);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--board-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 12px 10px;
+      box-shadow: 0 1px 4px var(--shadow);
+      transition: border-color 0.15s, width 0.2s, background 0.2s;
+    }
+
+    .board.drag-over {
+      border-color: var(--accent);
+    }
+
+    /* cards inside a colored board inherit card bg */
+    .board .card {
+      background: var(--board-card-bg);
+    }
+
+    .board-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .board-drag-handle {
+      cursor: grab;
+      opacity: 0.25;
+      font-size: 13px;
+      padding: 0 2px;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .board:hover .board-drag-handle {
+      opacity: 0.55;
+    }
+
+    .board-drag-handle:hover {
+      opacity: 1 !important;
+    }
+
+    .board-drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .board.board-dragging {
+      opacity: 0.4;
+    }
+
+    .board.board-drag-over-left {
+      box-shadow: -3px 0 0 0 var(--accent), 0 1px 4px var(--shadow);
+    }
+
+    .board.board-drag-over-right {
+      box-shadow: 3px 0 0 0 var(--accent), 0 1px 4px var(--shadow);
+    }
+
+    /* board view mode: title is a plain span */
+    .board-title-view {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: default;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* board editing panel — hidden by default */
+    .board-edit-panel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: var(--bg3);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    .board.editing .board-edit-panel {
+      display: flex;
+    }
+
+    .board.editing .board-header {
+      margin-bottom: 0;
+    }
+
+    .board-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .board-edit-row label {
+      width: 56px;
+      flex-shrink: 0;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .board-edit-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 2px 0;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .board-edit-input:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .board-edit-input[type=number] {
+      width: 48px;
+      flex: none;
+      -moz-appearance: textfield;
+    }
+
+    .board-edit-input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    /* color swatches */
+    .color-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .color-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.1s, border-color 0.1s;
+      flex-shrink: 0;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.2);
+    }
+
+    .color-swatch.active {
+      border-color: var(--text);
+    }
+
+    .color-swatch.none-swatch {
+      background: var(--bg2);
+      border: 2px dashed var(--border);
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+    }
+
+    .board-count {
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .board-delete {
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+      padding: 2px 4px;
+      font-family: inherit;
+    }
+
+    .board:hover .board-delete {
+      opacity: 0.4;
+    }
+
+    .board-delete:hover {
+      opacity: 1 !important;
+    }
+
+    /* hint on board hover */
+    .board-title-view::after {
+      content: ' ✎';
+      opacity: 0;
+      font-size: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .board:not(.editing):hover .board-title-view::after {
+      opacity: 0.35;
+    }
+
+    /* ── Cards list — flex row of columns ── */
+    .cards-list {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .card-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    /* ghost placeholder shown in column while dragging */
+    .card-placeholder {
+      border: 2px dashed var(--accent);
+      border-radius: 5px;
+      background: var(--accent-faint);
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      transition: box-shadow 0.15s, transform 0.1s, opacity 0.15s;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px var(--shadow2);
+      transform: translateY(-1px);
+    }
+
+    .card.dragging {
+      opacity: 0.35;
+      cursor: grabbing;
+    }
+
+    .card-img-wrap {
+      position: relative;
+    }
+
+    .card-img {
+      width: 100%;
+      display: block;
+      max-height: 200px;
+      object-fit: contain;
+      background: var(--bg);
+    }
+
+    .card-img-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      display: none;
+      font-family: inherit;
+    }
+
+    .card:hover .card-img-remove {
+      display: block;
+    }
+
+    .card-img-add {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--card-content-size);
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 1px dashed var(--border2);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .card-img-add:hover {
+      background: var(--accent-faint);
+      color: var(--accent);
+    }
+
+    .card-body {
+      padding: 10px 10px 8px;
+    }
+
+    /* shared display style for title and content view divs */
+    .card-title-view {
+      font-size: var(--card-title-size);
+      font-weight: 600;
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      color: var(--text);
+      font-family: inherit;
+      width: 100%;
+      min-height: 1.4em;
+      cursor: default;
+    }
+
+    .card-content-view {
+      font-size: var(--card-content-size);
+      line-height: 1.5;
+      font-family: 'IBM Plex Sans', sans-serif;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      color: var(--text);
+      opacity: 0.55;
+      width: 100%;
+      margin-top: 4px;
+      cursor: default;
+    }
+
+    /* edit textareas — hidden in view mode, shown in editing */
+    .card-title {
+      font-size: var(--card-title-size);
+      font-weight: 600;
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      outline: none;
+      border: none;
+      border-bottom: 1px solid var(--accent);
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      width: 100%;
+      padding: 0 0 1px;
+      resize: none;
+      overflow: hidden;
+      display: none;
+    }
+
+    .card-title:focus {
+      outline: none;
+    }
+
+    .card-content {
+      font-size: var(--card-content-size);
+      color: var(--text);
+      line-height: 1.5;
+      font-family: 'IBM Plex Sans', sans-serif;
+      margin-top: 4px;
+      outline: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      opacity: 0.7;
+      width: 100%;
+      resize: none;
+      overflow: hidden;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      display: none;
+    }
+
+    .card-content:focus {
+      outline: none;
+      opacity: 0.9;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+
+    .card-delete {
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 11px;
+      cursor: pointer;
+      opacity: 0;
+      font-family: inherit;
+      transition: opacity 0.15s;
+      padding: 0;
+    }
+
+    .card:hover .card-delete {
+      opacity: 0.35;
+    }
+
+    .card-delete:hover {
+      opacity: 1 !important;
+    }
+
+    /* ── Add card btn ── */
+    .add-card-btn {
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+
+    .add-card-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-faint);
+    }
+
+    /* ── Empty workspace state ── */
+    #empty {
+      margin: auto;
+      opacity: 0.35;
+      text-align: center;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    #empty-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Empty board state ── */
+    .board-empty {
+      text-align: center;
+      padding: 20px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      opacity: 0.5;
+      user-select: none;
+      pointer-events: none;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Lightbox ── */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    #lightbox.open {
+      display: flex;
+    }
+
+    #lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+      cursor: default;
+    }
+
+    #lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 28px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    #lightbox-close:hover {
+      color: #fff;
+    }
+
+    /* ── Settings: storage meter ── */
+    .storage-bar-wrap {
+      width: 100%;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .storage-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent);
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .storage-bar.warn {
+      background: #ffb74d;
+    }
+
+    .storage-bar.danger {
+      background: #e57373;
+    }
+
+    .storage-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+
+    /* export/import buttons */
+    .settings-action-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .settings-action-btn {
+      flex: 1;
+      padding: 6px 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .settings-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Card editing state (double-click to edit) ── */
+    /* Default view mode */
+    .card-img-add {
+      display: none !important;
+    }
+
+    .card-delete {
+      display: none !important;
+    }
+
+    .card-img-remove {
+      display: none !important;
+    }
+
+    /* card.editing: show textareas, hide view divs */
+    .card.editing {
+      cursor: default;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-faint), 0 4px 12px var(--shadow2);
+    }
+
+    .card.editing:hover {
+      transform: none;
+    }
+
+    .card.editing .card-title {
+      display: block;
+    }
+
+    .card.editing .card-content {
+      display: block;
+    }
+
+    .card.editing .card-title-view {
+      display: none;
+    }
+
+    .card.editing .card-content-view {
+      display: none;
+    }
+
+    .card.editing .card-delete {
+      display: flex !important;
+    }
+
+    .card.editing .card-img-add {
+      display: flex !important;
+    }
+
+    .card.editing .card-img-remove {
+      display: block !important;
+    }
+
+    /* image editing overlay */
+    .card-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .card.editing .card-img-overlay {
+      display: flex;
+    }
+
+    .card-img-overlay button {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-img-overlay button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .card-img-overlay button.danger:hover {
+      background: rgba(220, 60, 60, 0.7);
+    }
+
+    /* hint text on hover when not editing */
+    .card:not(.editing)::after {
+      content: 'double-click to edit';
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      font-size: 9px;
+      opacity: 0;
+      color: var(--text2);
+      pointer-events: none;
+      transition: opacity 0.2s;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .card {
+      position: relative;
+    }
+
+    .card:not(.editing):hover::after {
+      opacity: 0.4;
+    }
+
+    /* ── Ghost drag element ── */
+    #drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.88;
+      transform: rotate(1.5deg);
+      transform-origin: top left;
+      transition: none;
+      box-shadow: 0 12px 32px var(--shadow2);
+      border-radius: 5px;
+      display: none;
+      overflow: visible;
+    }
+
+    #drag-ghost * {
+      pointer-events: none !important;
+      user-select: none !important;
+    }
+
+    #drag-position-badge {
+      position: absolute;
+      top: -22px;
+      left: 0;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 0.04em;
+    }
+
+    .dark #drag-position-badge {
+      color: #111;
+    }
+
+    /* ── Settings panel ── */
+    #settings-panel {
+      position: fixed;
+      width: 280px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      box-shadow: 0 8px 24px var(--shadow2);
+      z-index: 9000;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #settings-panel.open {
+      display: flex;
+    }
+
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .setting-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      opacity: 0.6;
+      text-transform: uppercase;
+    }
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .setting-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .setting-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .setting-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    .setting-val {
+      font-size: 12px;
+      opacity: 0.55;
+      min-width: 28px;
+      text-align: right;
+    }
+
+    .settings-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    #settings-btn.active {
+      background: var(--accent);
+      color: #111;
+      border-color: transparent;
+    }
+
+    /* ── Context menu ── */
+    #ctx-menu {
+      position: fixed;
+      z-index: 99998;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      min-width: 188px;
+      box-shadow: 0 8px 32px var(--shadow2);
+      display: none;
+      flex-direction: column;
+      gap: 1px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    #ctx-menu.open {
+      display: flex;
+    }
+
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .ctx-item:hover {
+      background: var(--accent-faint);
+      color: var(--accent);
+    }
+
+    .ctx-item.danger:hover {
+      background: rgba(220, 60, 60, 0.1);
+      color: #e05555;
+    }
+
+    .ctx-item.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .ctx-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 3px 4px;
+    }
+
+    .ctx-icon {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .dark .ctx-icon {
+      filter: invert(1);
+    }
+
+    .ctx-item:hover .ctx-icon {
+      opacity: 1;
+    }
+
+    /* ── Cut ghost card ── */
+    .card.cut-ghost {
+      opacity: 0.35;
+      filter: grayscale(60%);
+      border: 2px dashed var(--text2) !important;
+      position: relative;
+    }
+
+    .card.cut-ghost::before {
+      content: '✂';
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 11px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* ── Toast notification ── */
+    #toast {
+      position: fixed;
+      bottom: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px var(--shadow2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 99997;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+
+    /* ── About modal ── */
+    #about-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    #about-modal.open {
+      display: flex;
+    }
+
+    #about-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      max-width: 780px;
+      width: 90vw;
+      box-shadow: 0 24px 64px var(--shadow2);
+      position: relative;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    #about-box h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.04em;
+    }
+
+    #about-box h2 span {
+      color: var(--accent);
+    }
+
+    #about-box p {
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+
+    #about-box p:last-of-type {
+      margin-bottom: 0;
+    }
+
+    #about-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text2);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    #about-close:hover {
+      color: var(--text);
+    }
+
+    .about-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      opacity: 0.45;
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .changelog {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .changelog-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .changelog-ver {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .changelog-ver span {
+      font-weight: 400;
+      opacity: 0.45;
+      color: var(--text);
+      font-size: 10px;
+    }
+
+    .changelog-items {
+      font-size: 11px;
+      opacity: 0.6;
+      line-height: 1.7;
+      font-family: 'IBM Plex Mono', monospace;
+      padding-left: 12px;
+      border-left: 2px solid var(--border);
+    }
+
+    .changelog-items li {
+      list-style: none;
+      padding: 0;
+    }
+
+    .changelog-items li::before {
+      content: '+ ';
+      opacity: 0.4;
+    }
+
+    .coming-soon {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      opacity: 0.5;
+      line-height: 1.7;
+      padding: 8px 10px;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+    }
+
+    .coming-soon strong {
+      color: var(--accent);
+      opacity: 1;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <span id="logo">▦ DasBoard</span>
+    <input id="search" type="text" placeholder="search cards...">
+    <div class="spacer"></div>
+    <div id="new-board-wrap" style="display:none">
+      <input id="new-board-input" type="text" placeholder="board name..." maxlength="40">
+      <button class="btn" id="new-board-confirm">+ Add</button>
+      <button class="btn" id="new-board-cancel" style="opacity:0.5">✕</button>
+    </div>
+    <button class="btn" id="settings-btn">⚙ Settings</button>
+    <button class="btn" id="add-board-btn">+ Board</button>
+    <button class="btn" id="theme-btn">● Dark</button>
+  </div>
+
+  <!-- Settings panel -->
+  <div id="settings-panel">
+    <div class="setting-row">
+      <span class="setting-label">Card Title Size</span>
+      <div class="setting-control">
+        <input class="setting-slider" type="range" id="title-size-slider" min="10" max="22" step="1" value="13">
+        <span class="setting-val" id="title-size-val">13px</span>
+      </div>
+    </div>
+    <hr class="settings-divider">
+    <div class="setting-row">
+      <span class="setting-label">Card Description Size</span>
+      <div class="setting-control">
+        <input class="setting-slider" type="range" id="content-size-slider" min="9" max="18" step="1" value="11">
+        <span class="setting-val" id="content-size-val">11px</span>
+      </div>
+    </div>
+    <hr class="settings-divider">
+    <div class="setting-row">
+      <span class="setting-label">Storage (localStorage)</span>
+      <div class="storage-bar-wrap">
+        <div class="storage-bar" id="storage-bar"></div>
+      </div>
+      <div class="storage-info">
+        <span id="storage-used">—</span>
+        <span id="storage-pct">—</span>
+      </div>
+    </div>
+    <hr class="settings-divider">
+    <div class="setting-row">
+      <span class="setting-label">Data</span>
+      <div class="settings-action-row">
+        <button class="settings-action-btn" id="export-btn">
+          <img src="https://img.icons8.com/?size=100&format=png&color=000000&id=86287" class="ctx-icon"
+            style="width:13px;height:13px;vertical-align:middle;margin-right:5px;">Export
+        </button>
+        <button class="settings-action-btn" id="import-btn">
+          <img src="https://img.icons8.com/?size=100&format=png&color=000000&id=86326" class="ctx-icon"
+            style="width:13px;height:13px;vertical-align:middle;margin-right:5px;">Import
+        </button>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+    <hr class="settings-divider">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:10px; opacity:0.45; line-height:1.6;">Icons by <a href="https://icons8.com" target="_blank"
+          rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">Icons8</a></div>
+      <button class="settings-action-btn" id="about-settings-btn"
+        style="flex:none;padding:4px 10px;font-size:10px;display:flex;align-items:center;gap:5px;">
+        <img src="https://img.icons8.com/?size=100&format=png&color=000000&id=82742" class="ctx-icon"
+          style="width:13px;height:13px;">About
+      </button>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox"><button id="lightbox-close">✕</button><img id="lightbox-img" src="" alt=""></div>
+
+  <!-- Workspace -->
+  <div id="workspace">
+    <div id="canvas">
+      <div id="empty">
+        <div id="empty-icon">▦</div>No boards yet. Add one above.
+      </div>
+    </div>
+  </div>
+  <div id="zoom-indicator" title="Click to reset zoom">100%</div>
+  <div id="trash-bin" title="Drop card here to delete"><i class="trash-icon">🗑</i></div>
+
+  <!-- Context menu -->
+  <div id="ctx-menu"></div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- About modal -->
+  <div id="about-modal">
+    <div id="about-box">
+      <button id="about-close">✕</button>
+      <h2>▦ Das<span>Board</span></h2>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">
+          <p>Hey, I made (vibecoded actually) this webapp because I just hate Figma. JK lol, I just like making my own
+            tools. Funny story, I made this for my algorithm learning for speedcubing.</p>
+          <p style="margin-top:10px;">This webapp is fully local — no tracker, no privacy trespassing whatsoever. I'm
+            not Zuck, nor Palantir. All data lives in localStorage, hence the limited storage.</p>
+          <p style="margin-top:10px;">Beware of data loss if you flush the cache or whatever. You can backup your data
+            by manually exporting and importing using the buttons in Settings.</p>
+          <p style="margin-top:10px;">Okay, have fun. ✌</p>
+          <div class="coming-soon" style="margin-top:16px;">
+            <strong>Coming soon —</strong> PWA support.<br>
+            Install DasBoard to your homescreen. Works fully offline after first load. No app store, no install wizard —
+            just a browser.
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;border-left:1px solid var(--border);padding-left:28px;">
+          <div class="changelog">
+            <div class="changelog-entry">
+              <div class="changelog-ver">v0.1.0 <span>— 2026, initial release</span></div>
+              <ul class="changelog-items">
+                <li>Boards & cards with drag-and-drop</li>
+                <li>Infinite canvas — pan & zoom</li>
+                <li>Double-click to edit cards & boards</li>
+                <li>Image upload with WebP compression</li>
+                <li>Masonry columns per board (1–8)</li>
+                <li>Custom board colors, light & dark mode</li>
+                <li>Context menu — cut, copy, paste, duplicate</li>
+                <li>Move to board, move to top/bottom</li>
+                <li>Image lightbox, drag-to-trash</li>
+                <li>Export & import as JSON</li>
+                <li>Storage meter, font size settings</li>
+                <li>No account. No server. No tracking.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="about-footer">
+        <span>▦ DasBoard v0.1.0</span>
+        <span>goshintai.neocities.org</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drag ghost -->
+  <div id="drag-ghost">
+    <div id="drag-position-badge"></div>
+  </div>
+
+  <script>
+    // ─── Utils ───────────────────────────────────────────────────────────────────
+    const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const now = () => Date.now();
+
+    // ─── Storage ─────────────────────────────────────────────────────────────────
+    const Store = {
+      get(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } },
+    };
+
+    // ─── Storage utils ───────────────────────────────────────────────────────────
+    function getStorageUsed() {
+      let total = 0;
+      for (let k in localStorage) {
+        if (!localStorage.hasOwnProperty(k)) continue;
+        total += (localStorage[k].length + k.length) * 2; // UTF-16 = 2 bytes/char
+      }
+      return total;
+    }
+
+    function updateStorageMeter() {
+      const used = getStorageUsed();
+      const limit = 5 * 1024 * 1024; // 5MB typical localStorage limit
+      const pct = Math.min(100, (used / limit) * 100);
+      const usedKB = (used / 1024).toFixed(1);
+      const bar = document.getElementById('storage-bar');
+      const usedEl = document.getElementById('storage-used');
+      const pctEl = document.getElementById('storage-pct');
+      if (!bar) return;
+      bar.style.width = pct + '%';
+      bar.className = 'storage-bar' + (pct > 90 ? ' danger' : pct > 70 ? ' warn' : '');
+      usedEl.textContent = usedKB + ' KB used';
+      pctEl.textContent = pct.toFixed(1) + '% of ~5MB';
+    }
+
+    // ─── State ────────────────────────────────────────────────────────────────────
+    let boards = [];
+    let cards = [];
+    let theme = 'light';
+    let search = '';
+    let settingsOpen = false;
+    let suppressBoardExitOnce = false;
+    let cardTitleSize = 13;
+    let cardContentSize = 11;
+
+    // ─── Canvas / pan / zoom state ───────────────────────────────────────────────
+    let panX = 0, panY = 0, zoom = 1;
+    const ZOOM_MIN = 0.2, ZOOM_MAX = 3;
+
+    // ─── Placeholder (ghost slot in list while dragging) ──────────────────────────
+    let placeholder = null; // the DOM element shown as ghost slot
+
+    function applyCanvasTransform() {
+      const canvas = document.getElementById('canvas');
+      canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      document.getElementById('zoom-indicator').textContent = Math.round(zoom * 100) + '%';
+    }
+
+    function screenToCanvas(sx, sy) {
+      // Convert screen coords to canvas coords (accounting for pan+zoom)
+      const ws = document.getElementById('workspace');
+      const r = ws.getBoundingClientRect();
+      return {
+        x: (sx - r.left - panX) / zoom,
+        y: (sy - r.top - panY) / zoom,
+      };
+    }
+
+    // ─── Drag state ───────────────────────────────────────────────────────────────
+    let dragCard = null; // card object
+    let dragEl = null; // DOM element being dragged
+    let ghostEl = document.getElementById('drag-ghost');
+    let offsetX = 0, offsetY = 0;
+    let dropBoardId = null;
+    let dropAfterCardId = null;
+
+    // ─── Clipboard state ─────────────────────────────────────────────────────────
+    let clipboard = null;   // { type: 'copy'|'cut', card: {...} }
+    let cutCardId = null;   // id of card currently in cut/ghost state
+
+    function showToast(msg, duration = 2000) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    function cancelCut() {
+      if (!cutCardId) return;
+      const el = document.querySelector(`[data-card-id="${cutCardId}"]`);
+      if (el) el.classList.remove('cut-ghost');
+      cutCardId = null;
+      clipboard = null;
+    }
+
+    // ─── Image pipeline ───────────────────────────────────────────────────────────
+    async function processImage(file) {
+      return new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onerror = rej;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = rej;
+          img.onload = () => {
+            const MAX = 768;
+            let w = img.width, h = img.height;
+            if (w > MAX || h > MAX) {
+              if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+              else { w = Math.round(w * MAX / h); h = MAX; }
+            }
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            c.getContext('2d').drawImage(img, 0, 0, w, h);
+            // toDataURL — data: strings are allowed by Neocities CSP, blob: is not
+            res(c.toDataURL('image/webp', 0.75));
+          };
+          img.src = reader.result; // reader.result is already a data URL, never a blob URL
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ─── Persistence ─────────────────────────────────────────────────────────────
+    function save() {
+      Store.set('boards', boards);
+      Store.set('cards', cards); // data URLs are strings, safe to persist
+    }
+
+    function load() {
+      theme = Store.get('theme', 'light');
+      cardTitleSize = Store.get('cardTitleSize', 13);
+      cardContentSize = Store.get('cardContentSize', 11);
+      applyFontSizes();
+      boards = Store.get('boards', null);
+      cards = Store.get('cards', null);
+
+      if (!boards) {
+        // Seed data
+        const b1 = { id: uid(), title: 'Ideas', order: 0, cols: 1, createdAt: now(), updatedAt: now() };
+        const b2 = { id: uid(), title: 'In Progress', order: 1, cols: 1, createdAt: now(), updatedAt: now() };
+        const b3 = { id: uid(), title: 'Done', order: 2, cols: 1, createdAt: now(), updatedAt: now() };
+        boards = [b1, b2, b3];
+        cards = [
+          { id: uid(), boardId: b1.id, title: 'Drag me anywhere', content: 'Cards move between boards instantly.', image: null, order: 0, createdAt: now(), updatedAt: now() },
+          { id: uid(), boardId: b1.id, title: 'Double-click to edit', content: 'Inline editing. No modals.', image: null, order: 1, createdAt: now(), updatedAt: now() },
+          { id: uid(), boardId: b2.id, title: 'Add images', content: 'Hover a card and click "+ image".', image: null, order: 0, createdAt: now(), updatedAt: now() },
+        ];
+        save();
+      }
+    }
+
+    // ─── Board color palettes (module scope so theme toggle can access) ─────────────
+    const BOARD_COLORS_DARK = [
+      { label: 'Rose', bg: '#2e1a1a', card: '#3a2020' },
+      { label: 'Amber', bg: '#2e2410', card: '#3a2e14' },
+      { label: 'Sage', bg: '#1a2e1c', card: '#203824' },
+      { label: 'Teal', bg: '#102a28', card: '#143432' },
+      { label: 'Navy', bg: '#141c36', card: '#1a2442' },
+      { label: 'Plum', bg: '#261436', card: '#301a42' },
+      { label: 'Slate', bg: '#1a2028', card: '#202832' },
+      { label: 'Sand', bg: '#2e2818', card: '#38321e' },
+    ];
+    const BOARD_COLORS_LIGHT = [
+      { label: 'Rose', bg: '#fce8e8', card: '#fff0f0' },
+      { label: 'Amber', bg: '#fef3dc', card: '#fffaea' },
+      { label: 'Sage', bg: '#e4f0e6', card: '#eef7ef' },
+      { label: 'Teal', bg: '#ddf0ee', card: '#e8f7f6' },
+      { label: 'Navy', bg: '#dce6f8', card: '#e8effe' },
+      { label: 'Plum', bg: '#eeddf8', card: '#f6eafe' },
+      { label: 'Slate', bg: '#e4e8f0', card: '#edf0f6' },
+      { label: 'Sand', bg: '#f0ebe0', card: '#f8f4ec' },
+    ];
+    const SWATCH_COLORS = ['#e57373', '#ffb74d', '#81c784', '#4db6ac', '#64b5f6', '#ba68c8', '#90a4ae', '#a1887f'];
+
+    function applyBoardColor(boardEl, colorIdx) {
+      const isDark = document.body.classList.contains('dark');
+      const palette = isDark ? BOARD_COLORS_DARK : BOARD_COLORS_LIGHT;
+      if (colorIdx === null || colorIdx === undefined || colorIdx === -1) {
+        boardEl.style.removeProperty('--board-bg');
+        boardEl.style.removeProperty('--board-card-bg');
+      } else {
+        const c = palette[colorIdx];
+        if (c) {
+          boardEl.style.setProperty('--board-bg', c.bg);
+          boardEl.style.setProperty('--board-card-bg', c.card);
+        }
+      }
+    }
+
+    // ─── Render ───────────────────────────────────────────────────────────────────
+    function applyFontSizes() {
+      document.documentElement.style.setProperty('--card-title-size', cardTitleSize + 'px');
+      document.documentElement.style.setProperty('--card-content-size', cardContentSize + 'px');
+      const ts = document.getElementById('title-size-slider');
+      const tv = document.getElementById('title-size-val');
+      const cs = document.getElementById('content-size-slider');
+      const cv = document.getElementById('content-size-val');
+      if (ts) ts.value = cardTitleSize;
+      if (tv) tv.textContent = cardTitleSize + 'px';
+      if (cs) cs.value = cardContentSize;
+      if (cv) cv.textContent = cardContentSize + 'px';
+    }
+
+    // updateTopbar: only touches topbar state, never the workspace
+    function updateTopbar() {
+      document.body.classList.toggle('dark', theme === 'dark');
+      document.getElementById('theme-btn').textContent = theme === 'dark' ? '○ Light' : '● Dark';
+      document.getElementById('settings-btn').classList.toggle('active', settingsOpen);
+      document.getElementById('settings-panel').classList.toggle('open', settingsOpen);
+    }
+
+    // Full workspace rebuild — only called when board list changes or on first load
+    function render() {
+      updateTopbar();
+
+      const canvas = document.getElementById('canvas');
+      canvas.innerHTML = '';
+
+      const q = search.toLowerCase();
+      const sorted = [...boards].sort((a, b) => a.order - b.order);
+
+      if (sorted.length === 0) {
+        const empty = document.createElement('div');
+        empty.id = 'empty';
+        empty.innerHTML = '<div id="empty-icon">▦</div>No boards yet. Add one above.';
+        canvas.appendChild(empty);
+        return;
+      }
+
+      sorted.forEach(board => {
+        const boardCards = cards
+          .filter(c => c.boardId === board.id && (q ? c.title.toLowerCase().includes(q) || c.content.toLowerCase().includes(q) : true))
+          .sort((a, b) => a.order - b.order);
+        canvas.appendChild(buildBoard(board, boardCards));
+      });
+      applyCanvasTransform();
+    }
+
+    // Patch a single card in place — no DOM rebuild, focus preserved
+    function patchCard(id) {
+      const card = cards.find(c => c.id === id);
+      const el = document.querySelector(`[data-card-id="${id}"]`);
+      if (!card || !el) { render(); return; } // fallback
+
+      // Check if image state changed — if so rebuild just this card
+      const hasImgWrap = !!el.querySelector('.card-img-wrap');
+      const hasImg = !!card.image;
+      if (hasImg !== hasImgWrap) {
+        const boardId = card.boardId;
+        const newEl = buildCard(card, boardId);
+        el.replaceWith(newEl);
+        autoSizeTextarea(newEl.querySelector('.card-content'));
+        return;
+      }
+
+      // Otherwise patch fields in place
+      const titleEl = el.querySelector('.card-title');
+      const contentEl = el.querySelector('.card-content');
+      // update the view divs (always visible)
+      const titleView = el.querySelector('.card-title-view');
+      const contentView = el.querySelector('.card-content-view');
+      if (titleView) titleView.textContent = card.title;
+      if (contentView) {
+        contentView.textContent = card.content;
+        contentView.style.display = card.content ? '' : 'none';
+      }
+      // also update textareas if currently editing
+      if (el.classList.contains('editing')) {
+        if (titleEl && document.activeElement !== titleEl) { titleEl.value = card.title; autoSizeTextarea(titleEl); }
+        if (contentEl && document.activeElement !== contentEl) { contentEl.value = card.content; autoSizeTextarea(contentEl); }
+      }
+      if (hasImg) {
+        const imgEl = el.querySelector('.card-img');
+        if (imgEl) imgEl.src = card.image;
+      }
+    }
+
+    function exitBoardEditing(boardEl) {
+      boardEl.classList.remove('editing');
+      // sync title view
+      const b = boards.find(b => b.id === boardEl.dataset.boardId);
+      if (!b) return;
+      const tv = boardEl.querySelector('.board-title-view');
+      if (tv) tv.textContent = b.title;
+    }
+
+    function buildBoard(board, boardCards) {
+      const cols = board.cols || 1;
+      const el = document.createElement('div');
+      el.className = 'board';
+      el.dataset.boardId = board.id;
+      el.style.setProperty('--board-cols', cols);
+      // Apply saved color (deferred so applyBoardColor is defined)
+      requestAnimationFrame(() => {
+        if (board.colorIdx !== undefined && board.colorIdx !== -1) applyBoardColor(el, board.colorIdx);
+      });
+
+      // ── Header (always visible) ──
+      const header = document.createElement('div');
+      header.className = 'board-header';
+
+      const handle = document.createElement('span');
+      handle.className = 'board-drag-handle';
+      handle.textContent = '⠿';
+      handle.title = 'Drag to reorder';
+      handle.addEventListener('mousedown', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        startBoardDrag(e, board, el);
+      });
+
+      const titleView = document.createElement('span');
+      titleView.className = 'board-title-view';
+      titleView.textContent = board.title;
+
+      const count = document.createElement('span');
+      count.className = 'board-count';
+      count.textContent = boardCards.length;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'board-delete';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Delete board';
+      delBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!confirm(`Delete board "${board.title}" and all its cards?`)) return;
+        boards = boards.filter(b => b.id !== board.id);
+        cards = cards.filter(c => c.boardId !== board.id);
+        save(); render();
+      });
+
+      header.append(handle, titleView, count, delBtn);
+
+      // ── Edit panel (shown on double-click) ──
+      const editPanel = document.createElement('div');
+      editPanel.className = 'board-edit-panel';
+
+      // Title row
+      const titleRow = document.createElement('div');
+      titleRow.className = 'board-edit-row';
+      const titleLabel = document.createElement('label');
+      titleLabel.textContent = 'NAME';
+      const titleInput = document.createElement('input');
+      titleInput.className = 'board-edit-input';
+      titleInput.type = 'text';
+      titleInput.value = board.title;
+      titleInput.maxLength = 40;
+      titleInput.placeholder = 'Board name';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('input', () => {
+        titleView.textContent = titleInput.value || board.title;
+        const b = boards.find(b => b.id === board.id);
+        if (b) { b.title = titleInput.value || b.title; b.updatedAt = now(); save(); }
+      });
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { titleInput.blur(); exitBoardEditing(el); }
+        if (e.key === 'Escape') exitBoardEditing(el);
+      });
+      titleRow.append(titleLabel, titleInput);
+
+      // Columns row
+      const colsRow = document.createElement('div');
+      colsRow.className = 'board-edit-row';
+      const colsLabel = document.createElement('label');
+      colsLabel.textContent = 'COLS';
+      const colsInput = document.createElement('input');
+      colsInput.className = 'board-edit-input';
+      colsInput.type = 'number';
+      colsInput.value = cols;
+      colsInput.min = 1;
+      colsInput.max = 8;
+      colsInput.placeholder = '1';
+      colsInput.addEventListener('mousedown', e => e.stopPropagation());
+      colsInput.addEventListener('input', () => {
+        const n = Math.min(8, Math.max(1, parseInt(colsInput.value) || 1));
+        el.style.setProperty('--board-cols', n);
+        const b = boards.find(b => b.id === board.id);
+        if (b) { b.cols = n; b.updatedAt = now(); save(); }
+      });
+      colsInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { colsInput.blur(); exitBoardEditing(el); }
+        if (e.key === 'Escape') exitBoardEditing(el);
+      });
+      colsRow.append(colsLabel, colsInput);
+
+      // Color row
+      // colors moved to module scope
+
+      const colorRow = document.createElement('div');
+      colorRow.className = 'board-edit-row';
+      const colorLabel = document.createElement('label');
+      colorLabel.textContent = 'COLOR';
+      const swatches = document.createElement('div');
+      swatches.className = 'color-swatches';
+
+      // None swatch
+      const noneSwatch = document.createElement('div');
+      noneSwatch.className = 'color-swatch none-swatch' + ((board.colorIdx === -1 || board.colorIdx === undefined) ? ' active' : '');
+      noneSwatch.title = 'Default';
+      noneSwatch.textContent = '✕';
+      noneSwatch.addEventListener('click', e => {
+        e.stopPropagation();
+        const b = boards.find(b => b.id === board.id);
+        if (b) { b.colorIdx = -1; b.updatedAt = now(); save(); }
+        applyBoardColor(el, -1);
+        swatches.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        noneSwatch.classList.add('active');
+      });
+      swatches.appendChild(noneSwatch);
+
+      SWATCH_COLORS.forEach((hex, idx) => {
+        const sw = document.createElement('div');
+        sw.className = 'color-swatch' + (board.colorIdx === idx ? ' active' : '');
+        sw.style.background = hex;
+        sw.title = (BOARD_COLORS_LIGHT[idx] || {}).label || '';
+        sw.addEventListener('click', e => {
+          e.stopPropagation();
+          const b = boards.find(b => b.id === board.id);
+          if (b) { b.colorIdx = idx; b.updatedAt = now(); save(); }
+          applyBoardColor(el, idx);
+          swatches.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+          sw.classList.add('active');
+        });
+        swatches.appendChild(sw);
+      });
+
+      colorRow.append(colorLabel, swatches);
+      editPanel.append(titleRow, colsRow, colorRow);
+
+      // ── Double-click header to enter edit mode ──
+      header.addEventListener('dblclick', e => {
+        e.preventDefault();
+        document.querySelectorAll('.board.editing').forEach(b => {
+          if (b !== el) exitBoardEditing(b);
+        });
+        el.classList.toggle('editing');
+        if (el.classList.contains('editing')) {
+          setTimeout(() => titleInput.focus(), 0);
+        }
+      });
+
+      // ── Right-click board header context menu ──
+      header.addEventListener('contextmenu', e => showBoardCtx(e, board, el));
+
+      // Cards list — flex columns grid
+      const list = document.createElement('div');
+      list.className = 'cards-list';
+
+      // Build column divs
+      const colDivs = [];
+      for (let i = 0; i < cols; i++) {
+        const col = document.createElement('div');
+        col.className = 'card-col';
+        col.dataset.colIdx = i;
+        list.appendChild(col);
+        colDivs.push(col);
+      }
+
+      // Distribute cards left-to-right into columns
+      boardCards.forEach((card, idx) => {
+        const colIdx = idx % cols;
+        colDivs[colIdx].appendChild(buildCard(card, board.id));
+      });
+
+      // Empty board hint
+      if (boardCards.length === 0) {
+        const emptyHint = document.createElement('div');
+        emptyHint.className = 'board-empty';
+        emptyHint.style.gridColumn = '1 / -1';
+        emptyHint.textContent = 'no cards yet';
+        colDivs[0].appendChild(emptyHint);
+      }
+
+      // Add card
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-card-btn';
+      addBtn.textContent = '+ card';
+      addBtn.addEventListener('click', () => {
+        const boardCards2 = cards.filter(c => c.boardId === board.id);
+        const card = { id: uid(), boardId: board.id, title: 'New card', content: '', image: null, order: boardCards2.length, createdAt: now(), updatedAt: now() };
+        cards.push(card);
+        save(); render();
+        setTimeout(() => {
+          const newCardEl = document.querySelector(`[data-card-id="${card.id}"]`);
+          if (newCardEl) enterEditing(newCardEl);
+        }, 50);
+      });
+
+      el.append(header, editPanel, list, addBtn);
+      return el;
+    }
+
+    function enterEditing(el) {
+      document.querySelectorAll('.card.editing').forEach(c => {
+        if (c !== el) exitEditing(c);
+      });
+      el.classList.add('editing');
+      // Sync textarea values from current state and autosize
+      const id = el.dataset.cardId;
+      const c = cards.find(c => c.id === id);
+      if (!c) return;
+      const ta = el.querySelector('.card-title');
+      const ca = el.querySelector('.card-content');
+      if (ta) { ta.value = c.title; requestAnimationFrame(() => autoSizeTextarea(ta)); }
+      if (ca) { ca.value = c.content; requestAnimationFrame(() => autoSizeTextarea(ca)); }
+    }
+
+    function exitEditing(el) {
+      el.classList.remove('editing');
+      const id = el.dataset.cardId;
+      const c = cards.find(c => c.id === id);
+      if (!c) return;
+      const titleEl = el.querySelector('.card-title');
+      const contentEl = el.querySelector('.card-content');
+      const titleView = el.querySelector('.card-title-view');
+      const contentView = el.querySelector('.card-content-view');
+      let changed = false;
+      if (titleEl && titleEl.value !== c.title) {
+        c.title = titleEl.value || c.title;
+        if (titleView) titleView.textContent = c.title;
+        changed = true;
+      }
+      if (contentEl && contentEl.value !== c.content) {
+        c.content = contentEl.value;
+        if (contentView) {
+          contentView.textContent = c.content;
+          contentView.style.display = c.content ? '' : 'none';
+        }
+        changed = true;
+      }
+      if (changed) { c.updatedAt = now(); save(); }
+    }
+
+    function buildCard(card, boardId) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+
+      // ── Image section ──
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', async () => {
+        if (!fileInput.files[0]) return;
+        const dataUrl = await processImage(fileInput.files[0]);
+        updateCard(card.id, { image: dataUrl });
+      });
+      el.appendChild(fileInput);
+
+      if (card.image) {
+        const wrap = document.createElement('div');
+        wrap.className = 'card-img-wrap';
+        const img = document.createElement('img');
+        img.className = 'card-img';
+        img.src = card.image;
+        // Click image to open lightbox (only in view mode)
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', e => {
+          if (el.classList.contains('editing')) return;
+          e.stopPropagation();
+          openLightbox(card.image);
+        });
+
+        // Overlay shown when card.editing
+        const overlay = document.createElement('div');
+        overlay.className = 'card-img-overlay';
+        const changeBtn = document.createElement('button');
+        changeBtn.textContent = '⟳ Change';
+        changeBtn.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+        const delImgBtn = document.createElement('button');
+        delImgBtn.textContent = '✕ Remove';
+        delImgBtn.className = 'danger';
+        delImgBtn.addEventListener('click', e => { e.stopPropagation(); updateCard(card.id, { image: null }); });
+        overlay.append(changeBtn, delImgBtn);
+        wrap.append(img, overlay);
+        el.appendChild(wrap);
+      } else {
+        const addImg = document.createElement('div');
+        addImg.className = 'card-img-add';
+        addImg.textContent = '+ image';
+        addImg.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+        el.appendChild(addImg);
+      }
+
+      // ── Body ──
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
+      // View layer — plain divs, always correct size, wrap naturally
+      const titleView = document.createElement('div');
+      titleView.className = 'card-title-view';
+      titleView.textContent = card.title;
+
+      const contentView = document.createElement('div');
+      contentView.className = 'card-content-view';
+      contentView.textContent = card.content;
+      if (!card.content) contentView.style.display = 'none';
+
+      // Edit layer — textareas, only shown in .editing state
+      const titleInput = document.createElement('textarea');
+      titleInput.className = 'card-title';
+      titleInput.value = card.title;
+      titleInput.maxLength = 100;
+      titleInput.rows = 1;
+      titleInput.placeholder = 'Card title';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+        if (e.key === 'Escape') { exitEditing(el); }
+      });
+      titleInput.addEventListener('input', () => {
+        autoSizeTextarea(titleInput);
+        titleView.textContent = titleInput.value;
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.title = titleInput.value || c.title; c.updatedAt = now(); save(); }
+      });
+
+      const contentArea = document.createElement('textarea');
+      contentArea.className = 'card-content';
+      contentArea.value = card.content;
+      contentArea.rows = 1;
+      contentArea.placeholder = 'add a note...';
+      contentArea.addEventListener('mousedown', e => e.stopPropagation());
+      contentArea.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { exitEditing(el); }
+      });
+      contentArea.addEventListener('input', () => {
+        autoSizeTextarea(contentArea);
+        contentView.textContent = contentArea.value;
+        contentView.style.display = contentArea.value ? '' : 'none';
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.content = contentArea.value; c.updatedAt = now(); save(); }
+      });
+
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-delete';
+      delBtn.textContent = '✕ delete card';
+      delBtn.addEventListener('mousedown', e => e.stopPropagation());
+      delBtn.addEventListener('click', () => { cards = cards.filter(c => c.id !== card.id); save(); render(); });
+      footer.appendChild(delBtn);
+
+      body.append(titleView, contentView, titleInput, contentArea, footer);
+      el.appendChild(body);
+
+      // ── Double-click to enter edit mode ──
+      el.addEventListener('dblclick', e => {
+        e.preventDefault();
+        enterEditing(el);
+        // Focus the right field based on what was double-clicked
+        if (e.target === titleInput || e.target.classList.contains('card-title')) {
+          titleInput.focus();
+        } else if (e.target === contentArea || e.target.classList.contains('card-content')) {
+          contentArea.focus();
+        } else {
+          titleInput.focus();
+          titleInput.select();
+        }
+      });
+
+      // ── Click outside to exit editing ──
+      // Handled globally below via document mousedown
+
+      // ── Drag only on left click, only when not editing ──
+      el.addEventListener('mousedown', e => {
+        if (e.button !== 0) return; // ignore middle/right mouse — middle is pan
+        if (el.classList.contains('editing')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+        e.preventDefault();
+        startDrag(e, card, el);
+      });
+
+      // ── Right-click context menu ──
+      el.addEventListener('contextmenu', e => showCardCtx(e, card, el));
+
+      // Textareas are hidden by default; no autosize needed until editing
+
+      return el;
+    }
+
+    // autoSizeTextarea: set textarea height to fit content
+    function autoSizeTextarea(ta) {
+      if (!ta) return;
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+
+    function updateCard(id, patch) {
+      const c = cards.find(c => c.id === id);
+      if (!c) return;
+      Object.assign(c, patch, { updatedAt: now() });
+      save();
+      patchCard(id); // surgical update, no full re-render
+    }
+
+    // ─── Custom mouse drag ────────────────────────────────────────────────────────
+    function createPlaceholder(height) {
+      const ph = document.createElement('div');
+      ph.className = 'card-placeholder visible';
+      ph.style.height = height + 'px';
+      ph.style.marginBottom = '8px';
+      return ph;
+    }
+
+    function removePlaceholder() {
+      if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+      placeholder = null;
+    }
+
+    function insertPlaceholderBefore(referenceEl) {
+      if (!placeholder) return;
+      referenceEl.parentNode.insertBefore(placeholder, referenceEl);
+    }
+
+    function insertPlaceholderAfter(referenceEl) {
+      if (!placeholder) return;
+      referenceEl.parentNode.insertBefore(placeholder, referenceEl.nextSibling);
+    }
+
+    function startDrag(e, card, sourceEl) {
+      dragCard = card;
+      dragEl = sourceEl;
+
+      const rect = sourceEl.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      // Create placeholder matching card height
+      placeholder = createPlaceholder(rect.height);
+
+      // Clone card for ghost
+      ghostEl.innerHTML = '<div id="drag-position-badge"></div>';
+      const clone = sourceEl.cloneNode(true);
+      clone.style.width = rect.width + 'px';
+      clone.style.cursor = 'grabbing';
+      clone.style.transform = 'none';
+      clone.style.boxShadow = 'none';
+      clone.style.opacity = '1';
+      ghostEl.appendChild(clone);
+      ghostEl.style.width = rect.width + 'px';
+      ghostEl.style.display = 'block';
+      moveGhost(e.clientX, e.clientY);
+
+      sourceEl.classList.add('dragging');
+
+      const trash = document.getElementById('trash-bin');
+      trash.style.display = 'flex';
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function moveGhost(cx, cy) {
+      ghostEl.style.left = (cx - offsetX) + 'px';
+      ghostEl.style.top = (cy - offsetY) + 'px';
+    }
+
+    function isOverTrash(cx, cy) {
+      const t = document.getElementById('trash-bin');
+      const r = t.getBoundingClientRect();
+      return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+    }
+
+    function getColDivs(boardEl) {
+      return [...boardEl.querySelectorAll('.card-col')];
+    }
+
+    function getCardEls(boardEl) {
+      // Cards across all columns, excluding dragging card and placeholder
+      return [...boardEl.querySelectorAll('.card:not(.dragging)')];
+    }
+
+    function getColForCard(boardEl, cardEl) {
+      return cardEl.closest('.card-col');
+    }
+
+    function onMouseMove(e) {
+      moveGhost(e.clientX, e.clientY);
+
+      document.querySelectorAll('.board').forEach(b => b.classList.remove('drag-over'));
+
+      // Trash hover
+      const trash = document.getElementById('trash-bin');
+      if (isOverTrash(e.clientX, e.clientY)) {
+        trash.classList.add('active');
+        removePlaceholder();
+        dropBoardId = null; dropAfterCardId = null;
+        return;
+      } else {
+        trash.classList.remove('active');
+      }
+
+      // Find board under cursor
+      const boardUnder = getBoardUnder(e.clientX, e.clientY);
+      if (!boardUnder) {
+        removePlaceholder();
+        dropBoardId = null; dropAfterCardId = null;
+        return;
+      }
+
+      boardUnder.classList.add('drag-over');
+      dropBoardId = boardUnder.dataset.boardId;
+      const colDivs = getColDivs(boardUnder);
+      if (!colDivs.length) return;
+
+      // Find nearest column by X proximity
+      let bestCol = colDivs[0], bestColDist = Infinity;
+      colDivs.forEach(col => {
+        const r = col.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const dist = Math.abs(e.clientX - cx);
+        if (dist < bestColDist) { bestColDist = dist; bestCol = col; }
+      });
+
+      // Within that column, find nearest card by Y
+      const colCards = [...bestCol.querySelectorAll('.card:not(.dragging)')];
+
+      if (colCards.length === 0) {
+        // Column is empty — put placeholder at top
+        if (!bestCol.contains(placeholder)) bestCol.insertBefore(placeholder, bestCol.firstChild);
+        dropAfterCardId = '__top__';
+        updateBadge(boardUnder, '__top__');
+        return;
+      }
+
+      let bestCard = null, bestDist = Infinity, bestPos = 'after';
+      colCards.forEach(cardEl => {
+        const r = cardEl.getBoundingClientRect();
+        const cy = r.top + r.height / 2;
+        const dist = Math.abs(e.clientY - cy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestCard = cardEl;
+          bestPos = e.clientY < cy ? 'before' : 'after';
+        }
+      });
+
+      if (!bestCard) return;
+
+      if (bestPos === 'before') {
+        if (placeholder.nextSibling !== bestCard || placeholder.parentNode !== bestCard.parentNode) {
+          bestCard.parentNode.insertBefore(placeholder, bestCard);
+        }
+        // Compute dropAfterCardId: the card visually before bestCard across ALL columns
+        const allCardEls = [...boardUnder.querySelectorAll('.card:not(.dragging)')].filter(c => c !== placeholder);
+        const bestCardId = bestCard.dataset.cardId;
+        const boardDataCards = cards.filter(c => c.boardId === dropBoardId && c.id !== dragCard.id).sort((a, b) => a.order - b.order);
+        const idx = boardDataCards.findIndex(c => c.id === bestCardId);
+        dropAfterCardId = idx <= 0 ? '__top__' : boardDataCards[idx - 1].id;
+      } else {
+        const nextSib = bestCard.nextSibling;
+        if (nextSib !== placeholder || placeholder.parentNode !== bestCard.parentNode) {
+          bestCard.parentNode.insertBefore(placeholder, nextSib || null);
+        }
+        dropAfterCardId = bestCard.dataset.cardId;
+      }
+      updateBadge(boardUnder, dropAfterCardId);
+    }
+
+    function updateBadge(boardEl, afterCardId) {
+      const boardId = boardEl.dataset.boardId;
+      const boardCards = cards.filter(c => c.boardId === boardId && c.id !== dragCard?.id).sort((a, b) => a.order - b.order);
+      const total = boardCards.length + 1;
+      let pos;
+      if (!afterCardId || afterCardId === '__top__') pos = 1;
+      else {
+        const idx = boardCards.findIndex(c => c.id === afterCardId);
+        pos = idx + 2;
+      }
+      const badge = document.getElementById('drag-position-badge');
+      if (badge) badge.textContent = pos + ' / ' + total;
+    }
+
+    function getBoardUnder(cx, cy) {
+      // cx/cy are screen coords; boards are also in screen space via getBoundingClientRect
+      const boardEls = document.querySelectorAll('.board');
+      for (const b of boardEls) {
+        const r = b.getBoundingClientRect();
+        if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) return b;
+      }
+      return null;
+    }
+
+    function onMouseUp(e) {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+      // ── Check trash FIRST before hiding anything ──
+      const overTrash = dragCard && isOverTrash(e.clientX, e.clientY);
+
+      ghostEl.style.display = 'none';
+      document.querySelectorAll('.drop-indicator').forEach(i => i.classList.remove('visible'));
+      document.querySelectorAll('.board').forEach(b => b.classList.remove('drag-over'));
+      if (dragEl) dragEl.classList.remove('dragging');
+
+      // Hide trash bin
+      const trash = document.getElementById('trash-bin');
+      trash.style.display = 'none';
+      trash.classList.remove('active');
+
+      // Dropped on trash → delete
+      removePlaceholder();
+      if (overTrash) {
+        cards = cards.filter(c => c.id !== dragCard.id);
+        save(); render();
+        dragCard = null; dragEl = null; dropBoardId = null; dropAfterCardId = null;
+        return;
+      }
+
+      removePlaceholder();
+
+      if (dragCard && dropBoardId) {
+        const cardId = dragCard.id;
+        const moved = cards.find(c => c.id === cardId);
+        if (moved) {
+          moved.boardId = dropBoardId;
+          moved.updatedAt = now();
+
+          const boardCards = cards.filter(c => c.boardId === dropBoardId && c.id !== cardId).sort((a, b) => a.order - b.order);
+          let newOrder;
+          if (!dropAfterCardId || dropAfterCardId === '__top__') {
+            newOrder = [moved, ...boardCards]; // insert at top
+          } else {
+            const idx = boardCards.findIndex(c => c.id === dropAfterCardId);
+            if (idx === -1) {
+              newOrder = [...boardCards, moved]; // append at end
+            } else {
+              newOrder = [...boardCards.slice(0, idx + 1), moved, ...boardCards.slice(idx + 1)];
+            }
+          }
+          newOrder.forEach((c, i) => { c.order = i; });
+        }
+        save();
+        render();
+      }
+
+      dragCard = null; dragEl = null; dropBoardId = null; dropAfterCardId = null;
+    }
+
+    // ─── Topbar controls ──────────────────────────────────────────────────────────
+    document.getElementById('search').addEventListener('input', e => {
+      search = e.target.value;
+      render();
+    });
+
+    document.getElementById('add-board-btn').addEventListener('click', () => {
+      document.getElementById('add-board-btn').style.display = 'none';
+      document.getElementById('new-board-wrap').style.display = 'flex';
+      document.getElementById('new-board-input').focus();
+    });
+
+    function confirmAddBoard() {
+      const val = document.getElementById('new-board-input').value.trim();
+      if (val) {
+        boards.push({ id: uid(), title: val, order: boards.length, createdAt: now(), updatedAt: now() });
+        save();
+      }
+      document.getElementById('new-board-wrap').style.display = 'none';
+      document.getElementById('add-board-btn').style.display = '';
+      document.getElementById('new-board-input').value = '';
+      render();
+    }
+
+    function cancelAddBoard() {
+      document.getElementById('new-board-wrap').style.display = 'none';
+      document.getElementById('add-board-btn').style.display = '';
+      document.getElementById('new-board-input').value = '';
+    }
+
+    document.getElementById('new-board-confirm').addEventListener('click', confirmAddBoard);
+    document.getElementById('new-board-cancel').addEventListener('click', cancelAddBoard);
+    document.getElementById('new-board-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmAddBoard();
+      if (e.key === 'Escape') cancelAddBoard();
+    });
+
+
+
+    // Close settings when clicking outside
+    document.addEventListener('mousedown', e => {
+      if (settingsOpen && !document.getElementById('settings-panel').contains(e.target) && e.target.id !== 'settings-btn') {
+        settingsOpen = false;
+        updateTopbar();
+      }
+    });
+
+    document.getElementById('title-size-slider').addEventListener('input', e => {
+      cardTitleSize = +e.target.value;
+      document.getElementById('title-size-val').textContent = cardTitleSize + 'px';
+      Store.set('cardTitleSize', cardTitleSize);
+      applyFontSizes();
+    });
+
+    document.getElementById('content-size-slider').addEventListener('input', e => {
+      cardContentSize = +e.target.value;
+      document.getElementById('content-size-val').textContent = cardContentSize + 'px';
+      Store.set('cardContentSize', cardContentSize);
+      applyFontSizes();
+    });
+
+    document.getElementById('theme-btn').addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      Store.set('theme', theme);
+      updateTopbar();
+      // Reapply board colors since dark/light palettes differ
+      document.querySelectorAll('.board').forEach(boardEl => {
+        const b = boards.find(b => b.id === boardEl.dataset.boardId);
+        if (b && b.colorIdx !== undefined && b.colorIdx !== -1) applyBoardColor(boardEl, b.colorIdx);
+        else applyBoardColor(boardEl, -1);
+      });
+    });
+
+    // ─── Board drag-to-reorder ────────────────────────────────────────────────────
+    let boardDragData = null; // { board, el, startX, startY }
+
+    function startBoardDrag(e, board, el) {
+      boardDragData = { board, el, startX: e.clientX, startY: e.clientY };
+      el.classList.add('board-dragging');
+      document.addEventListener('mousemove', onBoardDragMove);
+      document.addEventListener('mouseup', onBoardDragUp);
+    }
+
+    function onBoardDragMove(e) {
+      if (!boardDragData) return;
+      // Find which board we're hovering over
+      document.querySelectorAll('.board').forEach(b => {
+        b.classList.remove('board-drag-over-left', 'board-drag-over-right');
+      });
+      const target = getBoardUnder(e.clientX, e.clientY);
+      if (target && target !== boardDragData.el) {
+        const r = target.getBoundingClientRect();
+        const mid = r.left + r.width / 2;
+        target.classList.add(e.clientX < mid ? 'board-drag-over-left' : 'board-drag-over-right');
+      }
+    }
+
+    function onBoardDragUp(e) {
+      document.removeEventListener('mousemove', onBoardDragMove);
+      document.removeEventListener('mouseup', onBoardDragUp);
+      if (!boardDragData) return;
+
+      const { board, el } = boardDragData;
+      el.classList.remove('board-dragging');
+      document.querySelectorAll('.board').forEach(b => {
+        b.classList.remove('board-drag-over-left', 'board-drag-over-right');
+      });
+
+      const target = getBoardUnder(e.clientX, e.clientY);
+      if (target && target !== el) {
+        const targetId = target.dataset.boardId;
+        const targetBoard = boards.find(b => b.id === targetId);
+        if (targetBoard) {
+          const r = target.getBoundingClientRect();
+          const mid = r.left + r.width / 2;
+          const insertBefore = e.clientX < mid;
+
+          // Reorder: remove dragged board, insert at new position
+          const sorted = [...boards].sort((a, b) => a.order - b.order);
+          const from = sorted.findIndex(b => b.id === board.id);
+          let to = sorted.findIndex(b => b.id === targetId);
+          sorted.splice(from, 1);
+          if (!insertBefore) to = sorted.findIndex(b => b.id === targetId) + 1;
+          else to = sorted.findIndex(b => b.id === targetId);
+          sorted.splice(to, 0, board);
+          sorted.forEach((b, i) => { b.order = i; });
+          save();
+          render();
+        }
+      }
+
+      boardDragData = null;
+    }
+
+    // ── Click outside to exit card or board editing ──
+    document.addEventListener('mousedown', e => {
+      document.querySelectorAll('.card.editing').forEach(cardEl => {
+        if (!cardEl.contains(e.target)) exitEditing(cardEl);
+      });
+      if (suppressBoardExitOnce) { suppressBoardExitOnce = false; return; }
+      document.querySelectorAll('.board.editing').forEach(boardEl => {
+        if (!boardEl.contains(e.target)) exitBoardEditing(boardEl);
+      });
+    });
+
+    // ─── Canvas right-click ───────────────────────────────────────────────────────
+    document.getElementById('workspace').addEventListener('contextmenu', e => {
+      // Only fire on bare canvas, not on boards/cards
+      if (e.target.closest('.board') || e.target.closest('.card')) return;
+      showCanvasCtx(e);
+    });
+
+    // ─── Pan & Zoom ───────────────────────────────────────────────────────────────
+    const workspace = document.getElementById('workspace');
+
+    workspace.addEventListener('wheel', e => {
+      e.preventDefault();
+
+      if (e.ctrlKey || e.metaKey) {
+        // ── Ctrl+scroll = vertical pan ──
+        panY -= e.deltaY;
+      } else if (e.shiftKey) {
+        // ── Shift+scroll = horizontal pan ──
+        panX -= e.deltaY;
+      } else {
+        // ── Scroll = zoom centered on cursor ──
+        const ws = workspace.getBoundingClientRect();
+        const mx = e.clientX - ws.left;
+        const my = e.clientY - ws.top;
+        // normalise deltaY — trackpads give small floats, mice give 100/120
+        const raw = e.deltaY;
+        const delta = raw < 0 ? 1.06 : 1 / 1.06;
+        const newZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * delta));
+        panX = mx - (mx - panX) * (newZoom / zoom);
+        panY = my - (my - panY) * (newZoom / zoom);
+        zoom = newZoom;
+        // also consume any horizontal component (trackpad two-finger)
+        panX -= e.deltaX;
+      }
+
+      applyCanvasTransform();
+    }, { passive: false });
+
+    // Middle-mouse drag to pan
+    let isPanning = false, panStartX = 0, panStartY = 0, panStartPX = 0, panStartPY = 0;
+
+    workspace.addEventListener('mousedown', e => {
+      if (e.button === 1) { // middle mouse
+        e.preventDefault();
+        isPanning = true;
+        panStartX = e.clientX; panStartY = e.clientY;
+        panStartPX = panX; panStartPY = panY;
+        workspace.classList.add('panning');
+      }
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!isPanning) return;
+      panX = panStartPX + (e.clientX - panStartX);
+      panY = panStartPY + (e.clientY - panStartY);
+      applyCanvasTransform();
+    });
+
+    document.addEventListener('mouseup', e => {
+      if (e.button === 1 && isPanning) {
+        isPanning = false;
+        workspace.classList.remove('panning');
+      }
+    });
+
+    // Click zoom indicator to reset
+    document.getElementById('zoom-indicator').addEventListener('click', () => {
+      zoom = 1; panX = 0; panY = 0;
+      applyCanvasTransform();
+    });
+
+    // ─── Export / Import ─────────────────────────────────────────────────────────
+    document.getElementById('export-btn').addEventListener('click', () => {
+      const data = JSON.stringify({ boards, cards }, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dasboard-export-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('import-btn').addEventListener('click', () => {
+      document.getElementById('import-file').click();
+    });
+
+    document.getElementById('import-file').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!Array.isArray(data.boards) || !Array.isArray(data.cards)) {
+            alert('Invalid DasBoard export file.'); return;
+          }
+          if (!confirm(`Import ${data.boards.length} boards and ${data.cards.length} cards? This will replace your current data.`)) return;
+          boards = data.boards;
+          cards = data.cards;
+          save();
+          render();
+          updateStorageMeter();
+        } catch { alert('Could not parse file.'); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // ─── Lightbox ─────────────────────────────────────────────────────────────────
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.getElementById('lightbox-img').src = '';
+    }
+    document.getElementById('lightbox').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-img').addEventListener('click', e => e.stopPropagation());
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    // ─── Settings panel open → update meter ──────────────────────────────────────
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      settingsOpen = !settingsOpen;
+      if (settingsOpen) {
+        const btn = document.getElementById('settings-btn');
+        const rect = btn.getBoundingClientRect();
+        const panel = document.getElementById('settings-panel');
+        panel.style.top = (rect.bottom + 6) + 'px';
+        panel.style.right = (window.innerWidth - rect.right) + 'px';
+        updateStorageMeter();
+      }
+      updateTopbar();
+    });
+
+
+    // ─── Context Menu ─────────────────────────────────────────────────────────────
+    const ICONS = { 'edit': 'https://img.icons8.com/?size=100&format=png&color=000000&id=49', 'top': 'https://img.icons8.com/?size=100&format=png&color=000000&id=87702', 'bottom': 'https://img.icons8.com/?size=100&format=png&color=000000&id=86293', 'duplicate': 'https://img.icons8.com/?size=100&format=png&color=000000&id=98618', 'copy': 'https://img.icons8.com/?size=100&format=png&color=000000&id=85927', 'cut': 'https://img.icons8.com/?size=100&format=png&color=000000&id=98466', 'paste': 'https://img.icons8.com/?size=100&format=png&color=000000&id=98219', 'delete': 'https://img.icons8.com/?size=100&format=png&color=000000&id=85081', 'settings': 'https://img.icons8.com/?size=100&format=png&color=000000&id=364', 'reset': 'https://img.icons8.com/?size=100&format=png&color=000000&id=73827', 'import': 'https://img.icons8.com/?size=100&format=png&color=000000&id=86326', 'export': 'https://img.icons8.com/?size=100&format=png&color=000000&id=86287', 'about': 'https://img.icons8.com/?size=100&format=png&color=000000&id=82742', 'left': 'https://img.icons8.com/?size=100&format=png&color=000000&id=39944', 'right': 'https://img.icons8.com/?size=100&format=png&color=000000&id=39969', 'new': 'https://img.icons8.com/?size=100&format=png&color=000000&id=87702' };
+
+    function ctxIcon(name) {
+      const img = document.createElement('img');
+      img.className = 'ctx-icon';
+      img.src = ICONS[name] || '';
+      img.alt = '';
+      return img;
+    }
+
+    function ctxItem(label, iconName, action, opts = {}) {
+      const el = document.createElement('div');
+      el.className = 'ctx-item' + (opts.danger ? ' danger' : '') + (opts.disabled ? ' disabled' : '');
+      el.appendChild(ctxIcon(iconName));
+      const span = document.createElement('span');
+      span.textContent = label;
+      el.appendChild(span);
+      if (!opts.disabled) el.addEventListener('mousedown', e => { e.preventDefault(); closeCtx(); action(); });
+      return el;
+    }
+
+    function ctxSep() {
+      const el = document.createElement('div');
+      el.className = 'ctx-sep';
+      return el;
+    }
+
+    const ctxMenu = document.getElementById('ctx-menu');
+    let ctxOpen = false;
+
+    function openCtx(x, y, items) {
+      ctxMenu.innerHTML = '';
+      items.forEach(item => ctxMenu.appendChild(item));
+      // Position off-screen first so we can measure actual size
+      ctxMenu.style.left = '-9999px';
+      ctxMenu.style.top = '-9999px';
+      ctxMenu.classList.add('open');
+      ctxOpen = true;
+      // Measure real dimensions, then clamp to viewport
+      const mw = ctxMenu.offsetWidth;
+      const mh = ctxMenu.offsetHeight;
+      const cx = x + mw > window.innerWidth ? x - mw : x;
+      const cy = y + mh > window.innerHeight ? y - mh : y;
+      ctxMenu.style.left = Math.max(4, cx) + 'px';
+      ctxMenu.style.top = Math.max(4, cy) + 'px';
+    }
+
+    function closeCtx() {
+      ctxMenu.classList.remove('open');
+      ctxOpen = false;
+    }
+
+    document.addEventListener('mousedown', e => {
+      if (ctxOpen && !ctxMenu.contains(e.target)) closeCtx();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeCtx(); cancelCut(); }
+    });
+
+    // ─── Card context menu ────────────────────────────────────────────────────────
+    function showCardCtx(e, card, cardEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCtx();
+
+      const isCut = cutCardId === card.id;
+      const items = [];
+
+      if (!isCut) {
+        items.push(ctxItem('Edit', 'edit', () => {
+          // Small delay so context menu closes before edit mode opens
+          setTimeout(() => {
+            enterEditing(cardEl);
+            const ta = cardEl.querySelector('.card-title');
+            if (ta) { ta.focus(); ta.select(); }
+          }, 30);
+        }));
+        items.push(ctxSep());
+        items.push(ctxItem('Move to top', 'top', () => {
+          const bc = cards.filter(c => c.boardId === card.boardId).sort((a, b) => a.order - b.order);
+          const idx = bc.findIndex(c => c.id === card.id);
+          if (idx <= 0) return;
+          bc.splice(idx, 1); bc.unshift(card);
+          bc.forEach((c, i) => c.order = i);
+          save(); render();
+        }));
+        items.push(ctxItem('Move to bottom', 'bottom', () => {
+          const bc = cards.filter(c => c.boardId === card.boardId).sort((a, b) => a.order - b.order);
+          const idx = bc.findIndex(c => c.id === card.id);
+          if (idx >= bc.length - 1) return;
+          bc.splice(idx, 1); bc.push(card);
+          bc.forEach((c, i) => c.order = i);
+          save(); render();
+        }));
+        items.push(ctxSep());
+        items.push(ctxItem('Duplicate', 'duplicate', () => {
+          const bc = cards.filter(c => c.boardId === card.boardId).sort((a, b) => a.order - b.order);
+          const idx = bc.findIndex(c => c.id === card.id);
+          const clone = { ...card, id: uid(), order: card.order + 0.5, createdAt: now(), updatedAt: now() };
+          bc.splice(idx + 1, 0, clone);
+          bc.forEach((c, i) => c.order = i);
+          cards.push(clone);
+          save(); render();
+          showToast('Card duplicated');
+        }));
+        items.push(ctxItem('Copy', 'copy', () => {
+          // If another card is in cut/ghost state, restore it
+          if (cutCardId && cutCardId !== card.id) {
+            const ghostEl2 = document.querySelector(`[data-card-id="${cutCardId}"]`);
+            if (ghostEl2) ghostEl2.classList.remove('cut-ghost');
+            cutCardId = null;
+          }
+          clipboard = { type: 'copy', card: { ...card, image: card.image } };
+          showToast('Card copied');
+        }));
+        items.push(ctxItem('Cut', 'cut', () => {
+          // Restore previous ghost if any (revert to normal)
+          if (cutCardId && cutCardId !== card.id) {
+            const prev = document.querySelector(`[data-card-id="${cutCardId}"]`);
+            if (prev) prev.classList.remove('cut-ghost');
+            cutCardId = null;
+          }
+          clipboard = { type: 'cut', card: { ...card, image: card.image } };
+          cutCardId = card.id;
+          cardEl.classList.add('cut-ghost');
+          showToast('Card cut — right-click a board to paste');
+        }));
+
+        // Move to board submenu — show inline as sub-items
+        const otherBoards = boards.filter(b => b.id !== card.boardId).sort((a, b) => a.order - b.order);
+        if (otherBoards.length) {
+          items.push(ctxSep());
+          otherBoards.forEach(b => {
+            items.push(ctxItem('→ ' + b.title, 'paste', () => {
+              const targetCards = cards.filter(c => c.boardId === b.id);
+              card.boardId = b.id;
+              card.order = targetCards.length;
+              card.updatedAt = now();
+              save(); render();
+              showToast('Moved to ' + b.title);
+            }));
+          });
+        }
+      } else {
+        // Ghost card menu
+        items.push(ctxItem('Copy instead', 'copy', () => {
+          if (clipboard) clipboard.type = 'copy';
+          const el2 = document.querySelector(`[data-card-id="${card.id}"]`);
+          if (el2) el2.classList.remove('cut-ghost');
+          cutCardId = null;
+          showToast('Switched to copy');
+        }));
+        items.push(ctxItem('Cancel cut', 'cut', () => cancelCut()));
+        items.push(ctxSep());
+        items.push(ctxItem('Delete anyway', 'delete', () => {
+          cancelCut();
+          cards = cards.filter(c => c.id !== card.id);
+          save(); render();
+        }, { danger: true }));
+        return openCtx(e.clientX, e.clientY, items);
+      }
+
+      items.push(ctxSep());
+      items.push(ctxItem('Delete', 'delete', () => {
+        if (cutCardId === card.id) cancelCut();
+        cards = cards.filter(c => c.id !== card.id);
+        save(); render();
+      }, { danger: true }));
+
+      openCtx(e.clientX, e.clientY, items);
+    }
+
+    // ─── Board context menu ───────────────────────────────────────────────────────
+    function showBoardCtx(e, board, boardEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCtx();
+
+      const hasPaste = !!clipboard;
+      const items = [];
+
+      items.push(ctxItem('Edit board', 'edit', () => {
+        suppressBoardExitOnce = true;
+        document.querySelectorAll('.board.editing').forEach(b => { if (b !== boardEl) exitBoardEditing(b); });
+        boardEl.classList.add('editing');
+        setTimeout(() => {
+          const ti = boardEl.querySelector('.board-edit-input');
+          if (ti) { ti.focus(); ti.select(); }
+        }, 0);
+      }));
+
+      items.push(ctxSep());
+
+      items.push(ctxItem('Paste card', 'paste', () => {
+        if (!clipboard) return;
+        const { type, card: srcCard } = clipboard;
+        const newCard = { ...srcCard, id: uid(), boardId: board.id, order: 0, createdAt: now(), updatedAt: now() };
+        // Shift existing orders down
+        cards.filter(c => c.boardId === board.id).forEach(c => c.order++);
+        cards.push(newCard);
+        if (type === 'cut' && cutCardId) {
+          cards = cards.filter(c => c.id !== cutCardId);
+          cutCardId = null;
+        }
+        clipboard = null;
+        save(); render();
+        showToast('Card pasted');
+      }, { disabled: !hasPaste }));
+
+      items.push(ctxSep());
+
+      const sorted = [...boards].sort((a, b) => a.order - b.order);
+      const idx = sorted.findIndex(b => b.id === board.id);
+
+      items.push(ctxItem('Move left', 'left', () => {
+        if (idx <= 0) return;
+        const prev = sorted[idx - 1];
+        [board.order, prev.order] = [prev.order, board.order];
+        save(); render();
+      }, { disabled: idx === 0 }));
+
+      items.push(ctxItem('Move right', 'right', () => {
+        if (idx >= sorted.length - 1) return;
+        const next = sorted[idx + 1];
+        [board.order, next.order] = [next.order, board.order];
+        save(); render();
+      }, { disabled: idx === sorted.length - 1 }));
+
+      items.push(ctxSep());
+
+      items.push(ctxItem('Delete board', 'delete', () => {
+        if (!confirm('Delete board "' + board.title + '" and all its cards?')) return;
+        boards = boards.filter(b => b.id !== board.id);
+        cards = cards.filter(c => c.boardId !== board.id);
+        save(); render();
+      }, { danger: true }));
+
+      openCtx(e.clientX, e.clientY, items);
+    }
+
+    // ─── Canvas context menu ──────────────────────────────────────────────────────
+    function showCanvasCtx(e) {
+      e.preventDefault();
+      closeCtx();
+      const items = [];
+      items.push(ctxItem('New board', 'new', () => {
+        const b = { id: uid(), title: 'New board', order: boards.length, cols: 1, createdAt: now(), updatedAt: now() };
+        boards.push(b);
+        save(); render();
+        // Open board edit immediately
+        setTimeout(() => {
+          const boardEl = document.querySelector('[data-board-id="' + b.id + '"]');
+          if (boardEl) {
+            boardEl.classList.add('editing');
+            const ti = boardEl.querySelector('.board-edit-input');
+            if (ti) { ti.focus(); ti.select(); }
+          }
+        }, 60);
+      }));
+      items.push(ctxSep());
+      items.push(ctxItem('Reset zoom', 'reset', () => {
+        zoom = 1; panX = 0; panY = 0; applyCanvasTransform();
+      }));
+      openCtx(e.clientX, e.clientY, items);
+    }
+
+    // ─── About modal ─────────────────────────────────────────────────────────────
+    function openAbout() {
+      document.getElementById('about-modal').classList.add('open');
+      settingsOpen = false;
+      updateTopbar();
+    }
+    function closeAbout() {
+      document.getElementById('about-modal').classList.remove('open');
+    }
+    document.getElementById('about-settings-btn').addEventListener('click', openAbout);
+    document.getElementById('about-close').addEventListener('click', closeAbout);
+    document.getElementById('about-modal').addEventListener('mousedown', e => {
+      if (e.target === document.getElementById('about-modal')) closeAbout();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAbout();
+    });
+
+    // ─── Boot ─────────────────────────────────────────────────────────────────────
+    load();
+    render();
+  </script>
+</body>
+
+</html>
