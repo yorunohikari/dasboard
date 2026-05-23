@@ -692,7 +692,7 @@
       opacity: 1 !important;
     }
 
-    /* ── Add card btn ── */
+    /* ── Add card btn (base — overridden below for split wrap) ── */
     .add-card-btn {
       width: 100%;
       padding: 8px;
@@ -1342,6 +1342,503 @@
       opacity: 1;
       font-weight: 600;
     }
+
+    /* ── Add card split button ── */
+    .add-card-wrap {
+      display: flex;
+      margin-top: 8px;
+      border-radius: 4px;
+      overflow: visible;
+      gap: 0;
+    }
+
+    .add-card-btn {
+      margin-top: 0 !important;
+      flex: 1;
+      border-radius: 4px 0 0 4px !important;
+      border-right: none !important;
+    }
+
+    .add-card-chevron {
+      width: 26px;
+      padding: 0;
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-left: none;
+      color: var(--text2);
+      font-size: 9px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .add-card-chevron:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-faint);
+    }
+
+    /* ── Type picker popup ── */
+    .type-picker {
+      position: fixed;
+      z-index: 99999;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      min-width: 156px;
+      box-shadow: 0 8px 32px var(--shadow2);
+      display: none;
+      flex-direction: column;
+      gap: 1px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .type-picker.open {
+      display: flex;
+    }
+
+    .type-picker-label {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      padding: 5px 10px 3px;
+    }
+
+    .type-picker-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+      user-select: none;
+    }
+
+    .type-picker-item:hover {
+      background: var(--accent-faint);
+      color: var(--accent);
+    }
+
+    .type-picker-item.active {
+      color: var(--accent);
+    }
+
+    .type-picker-glyph {
+      font-size: 12px;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .type-picker-item:hover .type-picker-glyph,
+    .type-picker-item.active .type-picker-glyph {
+      opacity: 1;
+    }
+
+    /* ── Card type badge ── */
+    .card-type-badge {
+      display: inline-block;
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.35;
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid var(--border2);
+      margin-bottom: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+      user-select: none;
+      vertical-align: middle;
+    }
+
+    /* ── Newspaper card layout ── */
+    .card-newspaper-wrap {
+      padding: 8px 10px 10px;
+      /* clearfix */
+    }
+
+    .card-newspaper-wrap::after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+
+    .card-newspaper-img-float {
+      float: left;
+      width: 68px;
+      height: 68px;
+      object-fit: cover;
+      border-radius: 3px;
+      margin: 1px 9px 4px 0;
+      background: var(--bg);
+      display: block;
+      cursor: zoom-in;
+      flex-shrink: 0;
+    }
+
+    .card-newspaper-add-img {
+      float: left;
+      width: 68px;
+      height: 68px;
+      border: 1px dashed var(--border2);
+      border-radius: 3px;
+      margin: 1px 9px 4px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .card-newspaper-add-img:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-faint);
+    }
+
+    /* editing: show swap overlay on the floated image */
+    .card-newspaper-img-overlay {
+      float: left;
+      width: 68px;
+      height: 68px;
+      margin: 1px 9px 4px 0;
+      border-radius: 3px;
+      position: relative;
+      display: none;
+    }
+
+    .card.editing .card-newspaper-img-overlay {
+      display: block;
+    }
+
+    .card.editing .card-newspaper-img-float {
+      display: none;
+    }
+
+    .card-newspaper-img-overlay img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 3px;
+      display: block;
+    }
+
+    .card-newspaper-img-overlay-btn {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 9px;
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.4;
+      flex-direction: column;
+    }
+
+    .card-newspaper-img-overlay-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    /* text container: normal block, NOT a BFC — this lets it wrap around the float */
+    .card-newspaper-text {
+      display: block;
+    }
+
+    /* ── List card layout ── */
+    .card-list-body {
+      padding: 8px 10px;
+    }
+
+    .card-list-items {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 6px;
+    }
+
+    .card-list-item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .card-list-bullet {
+      color: var(--accent);
+      font-size: var(--card-content-size);
+      line-height: 1.7;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .card-list-item-view {
+      font-size: var(--card-content-size);
+      font-family: 'IBM Plex Sans', sans-serif;
+      line-height: 1.7;
+      color: var(--text);
+      opacity: 0.75;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .card-list-item-input {
+      flex: 1;
+      font-size: var(--card-content-size);
+      font-family: 'IBM Plex Sans', sans-serif;
+      line-height: 1.7;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      outline: none;
+      padding: 0;
+      width: 100%;
+      display: none;
+    }
+
+    .card-list-item-input:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .card.editing .card-list-item-input {
+      display: block;
+    }
+
+    .card.editing .card-list-item-view {
+      display: none;
+    }
+
+    .card-list-add-row {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      cursor: pointer;
+      font-size: var(--card-content-size);
+      color: var(--text2);
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+
+    .card.editing .card-list-add-row {
+      display: flex;
+    }
+
+    .card-list-add-row:hover {
+      color: var(--accent);
+    }
+
+    .card-list-del-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.1s;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+
+    .card.editing .card-list-del-btn {
+      display: inline-block;
+    }
+
+    .card-list-item-row:hover .card-list-del-btn {
+      opacity: 0.5;
+    }
+
+    .card-list-del-btn:hover {
+      opacity: 1 !important;
+      color: #e05555;
+    }
+
+    /* ── Table card layout ── */
+    .card-table-body {
+      padding: 8px 10px;
+    }
+
+    .card-table-wrap {
+      margin-top: 6px;
+      overflow-x: auto;
+    }
+
+    .card-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--card-content-size);
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+
+    .card-table th {
+      background: var(--bg);
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: calc(var(--card-content-size) - 1px);
+      padding: 4px 6px;
+      border: 1px solid var(--border2);
+      text-align: left;
+      white-space: nowrap;
+      color: var(--text);
+      opacity: 0.8;
+    }
+
+    .card-table td {
+      padding: 3px 6px;
+      border: 1px solid var(--border2);
+      color: var(--text);
+      opacity: 0.75;
+      vertical-align: top;
+    }
+
+    .card-table th input,
+    .card-table td input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--text);
+      padding: 0;
+      pointer-events: none;
+    }
+
+    .card.editing .card-table th input,
+    .card.editing .card-table td input {
+      pointer-events: auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card.editing .card-table th input:focus,
+    .card.editing .card-table td input:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .card-table-controls {
+      display: none;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .card.editing .card-table-controls {
+      display: flex;
+    }
+
+    .card-table-ctrl-btn {
+      font-size: 9px;
+      padding: 2px 7px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .card-table-ctrl-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .card-table-ctrl-btn.danger:hover {
+      border-color: #e05555;
+      color: #e05555;
+    }
+
+    /* ── Gallery card layout ── */
+    .card-gallery-body {
+      padding: 8px 10px;
+    }
+
+    .card-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .card-gallery-item {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 3px;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+    }
+
+    .card-gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      cursor: zoom-in;
+    }
+
+    .card-gallery-item .gallery-del-btn {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border: none;
+      border-radius: 2px;
+      padding: 1px 5px;
+      font-size: 9px;
+      cursor: pointer;
+      display: none;
+      font-family: inherit;
+    }
+
+    .card.editing .card-gallery-item .gallery-del-btn {
+      display: block;
+    }
+
+    .card-gallery-add {
+      aspect-ratio: 1;
+      border: 1px dashed var(--border2);
+      border-radius: 3px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .card.editing .card-gallery-add {
+      display: flex;
+    }
+
+    .card-gallery-add:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-faint);
+    }
   </style>
 </head>
 
@@ -1433,6 +1930,11 @@
 
   <!-- Context menu -->
   <div id="ctx-menu"></div>
+
+  <!-- Type picker popup -->
+  <div id="type-picker" class="type-picker">
+    <div class="type-picker-label">New Card Type</div>
+  </div>
 
   <!-- Toast -->
   <div id="toast"></div>
@@ -1638,11 +2140,14 @@
         const b3 = { id: uid(), title: 'Done', order: 2, cols: 1, createdAt: now(), updatedAt: now() };
         boards = [b1, b2, b3];
         cards = [
-          { id: uid(), boardId: b1.id, title: 'Drag me anywhere', content: 'Cards move between boards instantly.', image: null, order: 0, createdAt: now(), updatedAt: now() },
-          { id: uid(), boardId: b1.id, title: 'Double-click to edit', content: 'Inline editing. No modals.', image: null, order: 1, createdAt: now(), updatedAt: now() },
-          { id: uid(), boardId: b2.id, title: 'Add images', content: 'Hover a card and click "+ image".', image: null, order: 0, createdAt: now(), updatedAt: now() },
+          { id: uid(), boardId: b1.id, type: 'basic', title: 'Drag me anywhere', content: 'Cards move between boards instantly.', image: null, order: 0, createdAt: now(), updatedAt: now() },
+          { id: uid(), boardId: b1.id, type: 'basic', title: 'Double-click to edit', content: 'Inline editing. No modals.', image: null, order: 1, createdAt: now(), updatedAt: now() },
+          { id: uid(), boardId: b2.id, type: 'basic', title: 'Add images', content: 'Hover a card and click "+ image".', image: null, order: 0, createdAt: now(), updatedAt: now() },
         ];
         save();
+      } else {
+        // Migrate: ensure all cards have a type
+        cards.forEach(c => { if (!c.type) c.type = 'basic'; });
       }
     }
 
@@ -1724,9 +2229,21 @@
         return;
       }
 
+      function cardMatchesSearch(c, q) {
+        if (!q) return true;
+        if (c.title.toLowerCase().includes(q)) return true;
+        if (c.content && c.content.toLowerCase().includes(q)) return true;
+        if (c.data) {
+          if (c.data.items && c.data.items.some(i => i.toLowerCase().includes(q))) return true;
+          if (c.data.columns && c.data.columns.some(col => col.toLowerCase().includes(q))) return true;
+          if (c.data.rows && c.data.rows.some(row => row.some(cell => cell.toLowerCase().includes(q)))) return true;
+        }
+        return false;
+      }
+
       sorted.forEach(board => {
         const boardCards = cards
-          .filter(c => c.boardId === board.id && (q ? c.title.toLowerCase().includes(q) || c.content.toLowerCase().includes(q) : true))
+          .filter(c => c.boardId === board.id && cardMatchesSearch(c, q))
           .sort((a, b) => a.order - b.order);
         canvas.appendChild(buildBoard(board, boardCards));
       });
@@ -1739,7 +2256,17 @@
       const el = document.querySelector(`[data-card-id="${id}"]`);
       if (!card || !el) { render(); return; } // fallback
 
-      // Check if image state changed — if so rebuild just this card
+      const type = card.type || 'basic';
+
+      // For non-basic types with data-driven content, just rebuild the card
+      if (type !== 'basic' && type !== 'newspaper') {
+        const boardId = card.boardId;
+        const newEl = buildCard(card, boardId);
+        el.replaceWith(newEl);
+        return;
+      }
+
+      // For basic/newspaper: check if image state changed — rebuild if so
       const hasImgWrap = !!el.querySelector('.card-img-wrap');
       const hasImg = !!card.image;
       if (hasImg !== hasImgWrap) {
@@ -1753,7 +2280,6 @@
       // Otherwise patch fields in place
       const titleEl = el.querySelector('.card-title');
       const contentEl = el.querySelector('.card-content');
-      // update the view divs (always visible)
       const titleView = el.querySelector('.card-title-view');
       const contentView = el.querySelector('.card-content-view');
       if (titleView) titleView.textContent = card.title;
@@ -1761,13 +2287,14 @@
         contentView.textContent = card.content;
         contentView.style.display = card.content ? '' : 'none';
       }
-      // also update textareas if currently editing
       if (el.classList.contains('editing')) {
         if (titleEl && document.activeElement !== titleEl) { titleEl.value = card.title; autoSizeTextarea(titleEl); }
         if (contentEl && document.activeElement !== contentEl) { contentEl.value = card.content; autoSizeTextarea(contentEl); }
       }
       if (hasImg) {
-        const imgEl = el.querySelector('.card-img');
+        const imgEl = type === 'newspaper'
+          ? el.querySelector('.card-newspaper-img')
+          : el.querySelector('.card-img');
         if (imgEl) imgEl.src = card.image;
       }
     }
@@ -1968,22 +2495,27 @@
         colDivs[0].appendChild(emptyHint);
       }
 
-      // Add card
+      // Add card (split button: left = basic, right = type picker)
+      const addWrap = document.createElement('div');
+      addWrap.className = 'add-card-wrap';
+
       const addBtn = document.createElement('button');
       addBtn.className = 'add-card-btn';
       addBtn.textContent = '+ card';
-      addBtn.addEventListener('click', () => {
-        const boardCards2 = cards.filter(c => c.boardId === board.id);
-        const card = { id: uid(), boardId: board.id, title: 'New card', content: '', image: null, order: boardCards2.length, createdAt: now(), updatedAt: now() };
-        cards.push(card);
-        save(); render();
-        setTimeout(() => {
-          const newCardEl = document.querySelector(`[data-card-id="${card.id}"]`);
-          if (newCardEl) enterEditing(newCardEl);
-        }, 50);
+      addBtn.addEventListener('click', () => addCardOfType(board.id, 'basic'));
+
+      const chevron = document.createElement('button');
+      chevron.className = 'add-card-chevron';
+      chevron.title = 'Choose card type';
+      chevron.textContent = '▾';
+      chevron.addEventListener('mousedown', e => e.stopPropagation());
+      chevron.addEventListener('click', e => {
+        e.stopPropagation();
+        openTypePicker(e, board.id);
       });
 
-      el.append(header, editPanel, list, addBtn);
+      addWrap.append(addBtn, chevron);
+      el.append(header, editPanel, list, addWrap);
       return el;
     }
 
@@ -2028,12 +2560,127 @@
       if (changed) { c.updatedAt = now(); save(); }
     }
 
+    // ─── Card type system ─────────────────────────────────────────────────────────
+
+    const CARD_TYPES = [
+      { id: 'basic', label: 'Basic', glyph: '▭' },
+      { id: 'newspaper', label: 'Newspaper', glyph: '⊞' },
+      { id: 'list', label: 'List', glyph: '≡' },
+      { id: 'table', label: 'Table', glyph: '⊟' },
+      { id: 'gallery', label: 'Gallery', glyph: '⬚' },
+    ];
+
+    // Type picker state
+    let typePickerBoardId = null;
+
+    function openTypePicker(e, boardId) {
+      typePickerBoardId = boardId;
+      const picker = document.getElementById('type-picker');
+
+      // Toggle: if already open for this board, close it
+      if (picker.classList.contains('open') && picker._boardId === boardId) {
+        closeTypePicker();
+        return;
+      }
+
+      picker._boardId = boardId;
+      // Clear old items (keep label)
+      while (picker.children.length > 1) picker.removeChild(picker.lastChild);
+      CARD_TYPES.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'type-picker-item';
+        item.innerHTML = `<span class="type-picker-glyph">${t.glyph}</span>${t.label}`;
+        item.addEventListener('click', ev => {
+          ev.stopPropagation();
+          closeTypePicker();
+          addCardOfType(boardId, t.id);
+        });
+        picker.appendChild(item);
+      });
+      // Position
+      const rect = e.target.getBoundingClientRect();
+      picker.classList.add('open');
+      requestAnimationFrame(() => {
+        const pw = picker.offsetWidth;
+        const ph = picker.offsetHeight;
+        let x = rect.right - pw;
+        let y = rect.bottom + 4;
+        if (y + ph > window.innerHeight) y = rect.top - ph - 4;
+        if (x < 4) x = 4;
+        picker.style.left = x + 'px';
+        picker.style.top = y + 'px';
+      });
+    }
+
+    function closeTypePicker() {
+      document.getElementById('type-picker').classList.remove('open');
+    }
+
+    document.addEventListener('mousedown', e => {
+      const picker = document.getElementById('type-picker');
+      if (picker.classList.contains('open') && !picker.contains(e.target)) closeTypePicker();
+    });
+
+    function addCardOfType(boardId, type) {
+      const boardCards2 = cards.filter(c => c.boardId === boardId);
+      const base = { id: uid(), boardId, type, title: 'New card', content: '', image: null, order: boardCards2.length, createdAt: now(), updatedAt: now() };
+      if (type === 'list') base.data = { items: [''] };
+      if (type === 'table') base.data = { columns: ['Col 1', 'Col 2'], rows: [['', '']] };
+      if (type === 'gallery') base.data = { images: [] };
+      cards.push(base);
+      save(); render();
+      setTimeout(() => {
+        const newCardEl = document.querySelector(`[data-card-id="${base.id}"]`);
+        if (newCardEl) enterEditing(newCardEl);
+      }, 50);
+    }
+
+    // ─── Card renderer map ────────────────────────────────────────────────────────
+
     function buildCard(card, boardId) {
+      const type = card.type || 'basic';
+      const renderer = CARD_RENDERERS[type] || CARD_RENDERERS.basic;
+      return renderer(card, boardId);
+    }
+
+    const CARD_RENDERERS = {
+      basic: buildBasicCard,
+      newspaper: buildNewspaperCard,
+      list: buildListCard,
+      table: buildTableCard,
+      gallery: buildGalleryCard,
+    };
+
+    // ─── Shared card shell helpers ────────────────────────────────────────────────
+
+    function attachCardShell(el, card) {
+      // Drag, context menu, double-click are common to all card types.
+      // Each renderer handles its own inner editing events.
+      el.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        if (el.classList.contains('editing')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+        e.preventDefault();
+        startDrag(e, card, el);
+      });
+      el.addEventListener('contextmenu', e => showCardCtx(e, card, el));
+    }
+
+    function makeCardTypeBadge(type) {
+      if (type === 'basic') return null;
+      const badge = document.createElement('span');
+      badge.className = 'card-type-badge';
+      badge.textContent = type;
+      return badge;
+    }
+
+    // ─── Basic card ───────────────────────────────────────────────────────────────
+
+    function buildBasicCard(card, boardId) {
       const el = document.createElement('div');
       el.className = 'card';
       el.dataset.cardId = card.id;
 
-      // ── Image section ──
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';
@@ -2051,15 +2698,12 @@
         const img = document.createElement('img');
         img.className = 'card-img';
         img.src = card.image;
-        // Click image to open lightbox (only in view mode)
         img.style.cursor = 'zoom-in';
         img.addEventListener('click', e => {
           if (el.classList.contains('editing')) return;
           e.stopPropagation();
           openLightbox(card.image);
         });
-
-        // Overlay shown when card.editing
         const overlay = document.createElement('div');
         overlay.className = 'card-img-overlay';
         const changeBtn = document.createElement('button');
@@ -2080,11 +2724,9 @@
         el.appendChild(addImg);
       }
 
-      // ── Body ──
       const body = document.createElement('div');
       body.className = 'card-body';
 
-      // View layer — plain divs, always correct size, wrap naturally
       const titleView = document.createElement('div');
       titleView.className = 'card-title-view';
       titleView.textContent = card.title;
@@ -2094,7 +2736,6 @@
       contentView.textContent = card.content;
       if (!card.content) contentView.style.display = 'none';
 
-      // Edit layer — textareas, only shown in .editing state
       const titleInput = document.createElement('textarea');
       titleInput.className = 'card-title';
       titleInput.value = card.title;
@@ -2142,38 +2783,563 @@
       body.append(titleView, contentView, titleInput, contentArea, footer);
       el.appendChild(body);
 
-      // ── Double-click to enter edit mode ──
       el.addEventListener('dblclick', e => {
         e.preventDefault();
         enterEditing(el);
-        // Focus the right field based on what was double-clicked
         if (e.target === titleInput || e.target.classList.contains('card-title')) {
           titleInput.focus();
         } else if (e.target === contentArea || e.target.classList.contains('card-content')) {
           contentArea.focus();
         } else {
-          titleInput.focus();
-          titleInput.select();
+          titleInput.focus(); titleInput.select();
         }
       });
 
-      // ── Click outside to exit editing ──
-      // Handled globally below via document mousedown
+      attachCardShell(el, card);
+      return el;
+    }
 
-      // ── Drag only on left click, only when not editing ──
-      el.addEventListener('mousedown', e => {
-        if (e.button !== 0) return; // ignore middle/right mouse — middle is pan
-        if (el.classList.contains('editing')) return;
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
-        e.preventDefault();
-        startDrag(e, card, el);
+    // ─── Newspaper card ───────────────────────────────────────────────────────────
+
+    function buildNewspaperCard(card, boardId) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', async () => {
+        if (!fileInput.files[0]) return;
+        const dataUrl = await processImage(fileInput.files[0]);
+        updateCard(card.id, { image: dataUrl });
+      });
+      el.appendChild(fileInput);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'card-newspaper-wrap';
+
+      // Floated image or placeholder — always floated left so text wraps
+      if (card.image) {
+        // View mode: plain floated img
+        const img = document.createElement('img');
+        img.className = 'card-newspaper-img-float';
+        img.src = card.image;
+        img.title = 'Click to zoom';
+        img.addEventListener('click', e => {
+          e.stopPropagation();
+          openLightbox(card.image);
+        });
+        wrap.appendChild(img);
+
+        // Edit mode: overlay with change/remove, floated same size
+        const overlayWrap = document.createElement('div');
+        overlayWrap.className = 'card-newspaper-img-overlay';
+        const overlayImg = document.createElement('img');
+        overlayImg.src = card.image;
+        const overlayBtn = document.createElement('div');
+        overlayBtn.className = 'card-newspaper-img-overlay-btn';
+        overlayBtn.innerHTML = '⟳<br>change';
+        overlayBtn.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+        overlayWrap.append(overlayImg, overlayBtn);
+        wrap.appendChild(overlayWrap);
+      } else {
+        // No image: show a floated placeholder (always visible for newspaper)
+        const addImg = document.createElement('div');
+        addImg.className = 'card-newspaper-add-img';
+        addImg.innerHTML = '+<br>img';
+        addImg.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+        wrap.appendChild(addImg);
+      }
+
+      // Text flows alongside the float — elements placed directly in wrap
+      // (no wrapper div with BFC, so line boxes wrap around the float naturally)
+      const badge = makeCardTypeBadge('newspaper');
+      if (badge) wrap.appendChild(badge);
+
+      const titleView = document.createElement('div');
+      titleView.className = 'card-title-view';
+      titleView.style.marginTop = '0';
+      titleView.textContent = card.title;
+
+      const contentView = document.createElement('div');
+      contentView.className = 'card-content-view';
+      contentView.textContent = card.content;
+      if (!card.content) contentView.style.display = 'none';
+
+      const titleInput = document.createElement('textarea');
+      titleInput.className = 'card-title';
+      titleInput.value = card.title;
+      titleInput.maxLength = 100;
+      titleInput.rows = 1;
+      titleInput.placeholder = 'Headline';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+        if (e.key === 'Escape') exitEditing(el);
+      });
+      titleInput.addEventListener('input', () => {
+        autoSizeTextarea(titleInput);
+        titleView.textContent = titleInput.value;
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.title = titleInput.value || c.title; c.updatedAt = now(); save(); }
       });
 
-      // ── Right-click context menu ──
-      el.addEventListener('contextmenu', e => showCardCtx(e, card, el));
+      const contentArea = document.createElement('textarea');
+      contentArea.className = 'card-content';
+      contentArea.value = card.content;
+      contentArea.rows = 2;
+      contentArea.placeholder = 'Body text...';
+      contentArea.addEventListener('mousedown', e => e.stopPropagation());
+      contentArea.addEventListener('keydown', e => { if (e.key === 'Escape') exitEditing(el); });
+      contentArea.addEventListener('input', () => {
+        autoSizeTextarea(contentArea);
+        contentView.textContent = contentArea.value;
+        contentView.style.display = contentArea.value ? '' : 'none';
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.content = contentArea.value; c.updatedAt = now(); save(); }
+      });
 
-      // Textareas are hidden by default; no autosize needed until editing
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-delete';
+      delBtn.textContent = '✕ delete card';
+      delBtn.addEventListener('mousedown', e => e.stopPropagation());
+      delBtn.addEventListener('click', () => { cards = cards.filter(c => c.id !== card.id); save(); render(); });
+      footer.appendChild(delBtn);
 
+      wrap.append(titleView, contentView, titleInput, contentArea, footer);
+      el.appendChild(wrap);
+
+      el.addEventListener('dblclick', e => {
+        e.preventDefault();
+        enterEditing(el);
+        titleInput.focus(); titleInput.select();
+      });
+
+      attachCardShell(el, card);
+      return el;
+    }
+
+    // ─── List card ────────────────────────────────────────────────────────────────
+
+    function buildListCard(card, boardId) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+
+      if (!card.data) card.data = { items: [''] };
+      if (!card.data.items) card.data.items = [''];
+
+      const body = document.createElement('div');
+      body.className = 'card-list-body';
+
+      const badge = makeCardTypeBadge('list');
+      if (badge) body.appendChild(badge);
+
+      const titleView = document.createElement('div');
+      titleView.className = 'card-title-view';
+      titleView.textContent = card.title;
+
+      const titleInput = document.createElement('textarea');
+      titleInput.className = 'card-title';
+      titleInput.value = card.title;
+      titleInput.maxLength = 100;
+      titleInput.rows = 1;
+      titleInput.placeholder = 'List title';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+        if (e.key === 'Escape') exitEditing(el);
+      });
+      titleInput.addEventListener('input', () => {
+        autoSizeTextarea(titleInput);
+        titleView.textContent = titleInput.value;
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.title = titleInput.value || c.title; c.updatedAt = now(); save(); }
+      });
+
+      const itemsDiv = document.createElement('div');
+      itemsDiv.className = 'card-list-items';
+
+      function rebuildItems() {
+        itemsDiv.innerHTML = '';
+        const c = cards.find(c => c.id === card.id);
+        const items = c ? c.data.items : card.data.items;
+        items.forEach((text, idx) => {
+          const row = document.createElement('div');
+          row.className = 'card-list-item-row';
+
+          const bullet = document.createElement('span');
+          bullet.className = 'card-list-bullet';
+          bullet.textContent = '•';
+
+          const view = document.createElement('span');
+          view.className = 'card-list-item-view';
+          view.textContent = text || ' ';
+
+          const input = document.createElement('input');
+          input.className = 'card-list-item-input';
+          input.type = 'text';
+          input.value = text;
+          input.placeholder = 'item...';
+          input.addEventListener('mousedown', e => e.stopPropagation());
+          input.addEventListener('input', () => {
+            view.textContent = input.value || ' ';
+            const cc = cards.find(c => c.id === card.id);
+            if (cc) { cc.data.items[idx] = input.value; cc.updatedAt = now(); save(); }
+          });
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const cc = cards.find(c => c.id === card.id);
+              if (cc) {
+                cc.data.items.splice(idx + 1, 0, '');
+                cc.updatedAt = now(); save();
+                rebuildItems();
+                // focus newly added
+                const inputs = itemsDiv.querySelectorAll('.card-list-item-input');
+                if (inputs[idx + 1]) inputs[idx + 1].focus();
+              }
+            }
+            if (e.key === 'Backspace' && input.value === '') {
+              e.preventDefault();
+              const cc = cards.find(c => c.id === card.id);
+              if (cc && cc.data.items.length > 1) {
+                cc.data.items.splice(idx, 1);
+                cc.updatedAt = now(); save();
+                rebuildItems();
+                const inputs = itemsDiv.querySelectorAll('.card-list-item-input');
+                const prev = inputs[Math.max(0, idx - 1)];
+                if (prev) prev.focus();
+              }
+            }
+            if (e.key === 'Escape') exitEditing(el);
+          });
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'card-list-del-btn';
+          delBtn.textContent = '✕';
+          delBtn.title = 'Remove item';
+          delBtn.addEventListener('mousedown', e => e.stopPropagation());
+          delBtn.addEventListener('click', () => {
+            const cc = cards.find(c => c.id === card.id);
+            if (cc && cc.data.items.length > 1) {
+              cc.data.items.splice(idx, 1);
+              cc.updatedAt = now(); save();
+              rebuildItems();
+            }
+          });
+
+          row.append(bullet, view, input, delBtn);
+          itemsDiv.appendChild(row);
+        });
+      }
+
+      rebuildItems();
+
+      const addRow = document.createElement('div');
+      addRow.className = 'card-list-add-row';
+      addRow.innerHTML = '<span style="opacity:0.5;font-size:11px;">+</span> add item';
+      addRow.addEventListener('mousedown', e => e.stopPropagation());
+      addRow.addEventListener('click', () => {
+        const cc = cards.find(c => c.id === card.id);
+        if (cc) {
+          cc.data.items.push('');
+          cc.updatedAt = now(); save();
+          rebuildItems();
+          setTimeout(() => {
+            const inputs = itemsDiv.querySelectorAll('.card-list-item-input');
+            if (inputs.length) inputs[inputs.length - 1].focus();
+          }, 10);
+        }
+      });
+
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-delete';
+      delBtn.textContent = '✕ delete card';
+      delBtn.addEventListener('mousedown', e => e.stopPropagation());
+      delBtn.addEventListener('click', () => { cards = cards.filter(c => c.id !== card.id); save(); render(); });
+      footer.appendChild(delBtn);
+
+      body.append(titleView, titleInput, itemsDiv, addRow, footer);
+      el.appendChild(body);
+
+      el.addEventListener('dblclick', e => {
+        e.preventDefault();
+        enterEditing(el);
+        if (!e.target.classList.contains('card-list-item-input')) {
+          titleInput.focus(); titleInput.select();
+        }
+      });
+
+      attachCardShell(el, card);
+      return el;
+    }
+
+    // ─── Table card ───────────────────────────────────────────────────────────────
+
+    function buildTableCard(card, boardId) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+
+      if (!card.data) card.data = { columns: ['Col 1', 'Col 2'], rows: [['', '']] };
+
+      const body = document.createElement('div');
+      body.className = 'card-table-body';
+
+      const badge = makeCardTypeBadge('table');
+      if (badge) body.appendChild(badge);
+
+      const titleView = document.createElement('div');
+      titleView.className = 'card-title-view';
+      titleView.textContent = card.title;
+
+      const titleInput = document.createElement('textarea');
+      titleInput.className = 'card-title';
+      titleInput.value = card.title;
+      titleInput.maxLength = 100;
+      titleInput.rows = 1;
+      titleInput.placeholder = 'Table title';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+        if (e.key === 'Escape') exitEditing(el);
+      });
+      titleInput.addEventListener('input', () => {
+        autoSizeTextarea(titleInput);
+        titleView.textContent = titleInput.value;
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.title = titleInput.value || c.title; c.updatedAt = now(); save(); }
+      });
+
+      const tableWrap = document.createElement('div');
+      tableWrap.className = 'card-table-wrap';
+
+      function rebuildTable() {
+        tableWrap.innerHTML = '';
+        const c = cards.find(c => c.id === card.id);
+        const cols = c ? c.data.columns : card.data.columns;
+        const rows = c ? c.data.rows : card.data.rows;
+
+        const table = document.createElement('table');
+        table.className = 'card-table';
+
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        cols.forEach((colName, ci) => {
+          const th = document.createElement('th');
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.value = colName;
+          inp.placeholder = 'Col';
+          inp.addEventListener('mousedown', e => e.stopPropagation());
+          inp.addEventListener('input', () => {
+            const cc = cards.find(c => c.id === card.id);
+            if (cc) { cc.data.columns[ci] = inp.value; cc.updatedAt = now(); save(); }
+          });
+          inp.addEventListener('keydown', e => { if (e.key === 'Escape') exitEditing(el); });
+          th.appendChild(inp);
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        rows.forEach((row, ri) => {
+          const tr = document.createElement('tr');
+          cols.forEach((_, ci) => {
+            const td = document.createElement('td');
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.value = row[ci] || '';
+            inp.placeholder = '—';
+            inp.addEventListener('mousedown', e => e.stopPropagation());
+            inp.addEventListener('input', () => {
+              const cc = cards.find(c => c.id === card.id);
+              if (cc) { cc.data.rows[ri][ci] = inp.value; cc.updatedAt = now(); save(); }
+            });
+            inp.addEventListener('keydown', e => { if (e.key === 'Escape') exitEditing(el); });
+            td.appendChild(inp);
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        tableWrap.appendChild(table);
+      }
+
+      rebuildTable();
+
+      const controls = document.createElement('div');
+      controls.className = 'card-table-controls';
+
+      function makeCtrlBtn(label, danger, onClick) {
+        const btn = document.createElement('button');
+        btn.className = 'card-table-ctrl-btn' + (danger ? ' danger' : '');
+        btn.textContent = label;
+        btn.addEventListener('mousedown', e => e.stopPropagation());
+        btn.addEventListener('click', onClick);
+        return btn;
+      }
+
+      controls.append(
+        makeCtrlBtn('+ row', false, () => {
+          const c = cards.find(c => c.id === card.id);
+          if (c) { c.data.rows.push(new Array(c.data.columns.length).fill('')); c.updatedAt = now(); save(); rebuildTable(); }
+        }),
+        makeCtrlBtn('+ col', false, () => {
+          const c = cards.find(c => c.id === card.id);
+          if (c) { c.data.columns.push('Col'); c.data.rows.forEach(r => r.push('')); c.updatedAt = now(); save(); rebuildTable(); }
+        }),
+        makeCtrlBtn('- row', true, () => {
+          const c = cards.find(c => c.id === card.id);
+          if (c && c.data.rows.length > 1) { c.data.rows.pop(); c.updatedAt = now(); save(); rebuildTable(); }
+        }),
+        makeCtrlBtn('- col', true, () => {
+          const c = cards.find(c => c.id === card.id);
+          if (c && c.data.columns.length > 1) { c.data.columns.pop(); c.data.rows.forEach(r => r.pop()); c.updatedAt = now(); save(); rebuildTable(); }
+        })
+      );
+
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-delete';
+      delBtn.textContent = '✕ delete card';
+      delBtn.addEventListener('mousedown', e => e.stopPropagation());
+      delBtn.addEventListener('click', () => { cards = cards.filter(c => c.id !== card.id); save(); render(); });
+      footer.appendChild(delBtn);
+
+      body.append(titleView, titleInput, tableWrap, controls, footer);
+      el.appendChild(body);
+
+      el.addEventListener('dblclick', e => {
+        e.preventDefault();
+        enterEditing(el);
+        titleInput.focus(); titleInput.select();
+      });
+
+      attachCardShell(el, card);
+      return el;
+    }
+
+    // ─── Gallery card ─────────────────────────────────────────────────────────────
+
+    function buildGalleryCard(card, boardId) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+
+      if (!card.data) card.data = { images: [] };
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', async () => {
+        if (!fileInput.files[0]) return;
+        const dataUrl = await processImage(fileInput.files[0]);
+        const c = cards.find(c => c.id === card.id);
+        if (c) {
+          c.data.images.push(dataUrl);
+          c.updatedAt = now(); save();
+          rebuildGallery();
+        }
+      });
+      el.appendChild(fileInput);
+
+      const body = document.createElement('div');
+      body.className = 'card-gallery-body';
+
+      const badge = makeCardTypeBadge('gallery');
+      if (badge) body.appendChild(badge);
+
+      const titleView = document.createElement('div');
+      titleView.className = 'card-title-view';
+      titleView.textContent = card.title;
+
+      const titleInput = document.createElement('textarea');
+      titleInput.className = 'card-title';
+      titleInput.value = card.title;
+      titleInput.maxLength = 100;
+      titleInput.rows = 1;
+      titleInput.placeholder = 'Gallery title';
+      titleInput.addEventListener('mousedown', e => e.stopPropagation());
+      titleInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+        if (e.key === 'Escape') exitEditing(el);
+      });
+      titleInput.addEventListener('input', () => {
+        autoSizeTextarea(titleInput);
+        titleView.textContent = titleInput.value;
+        const c = cards.find(c => c.id === card.id);
+        if (c) { c.title = titleInput.value || c.title; c.updatedAt = now(); save(); }
+      });
+
+      const grid = document.createElement('div');
+      grid.className = 'card-gallery-grid';
+
+      function rebuildGallery() {
+        // preserve add btn
+        grid.innerHTML = '';
+        const c = cards.find(c => c.id === card.id);
+        const images = c ? c.data.images : card.data.images;
+        images.forEach((src, idx) => {
+          const item = document.createElement('div');
+          item.className = 'card-gallery-item';
+          const img = document.createElement('img');
+          img.src = src;
+          img.addEventListener('click', e => {
+            if (!el.classList.contains('editing')) { e.stopPropagation(); openLightbox(src); }
+          });
+          const delBtn = document.createElement('button');
+          delBtn.className = 'gallery-del-btn';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('mousedown', e => e.stopPropagation());
+          delBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const cc = cards.find(c => c.id === card.id);
+            if (cc) { cc.data.images.splice(idx, 1); cc.updatedAt = now(); save(); rebuildGallery(); }
+          });
+          item.append(img, delBtn);
+          grid.appendChild(item);
+        });
+
+        const addBtn2 = document.createElement('div');
+        addBtn2.className = 'card-gallery-add';
+        addBtn2.textContent = '+';
+        addBtn2.title = 'Add image';
+        addBtn2.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+        grid.appendChild(addBtn2);
+      }
+
+      rebuildGallery();
+
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-delete';
+      delBtn.textContent = '✕ delete card';
+      delBtn.addEventListener('mousedown', e => e.stopPropagation());
+      delBtn.addEventListener('click', () => { cards = cards.filter(c => c.id !== card.id); save(); render(); });
+      footer.appendChild(delBtn);
+
+      body.append(titleView, titleInput, grid, footer);
+      el.appendChild(body);
+
+      el.addEventListener('dblclick', e => {
+        e.preventDefault();
+        enterEditing(el);
+        titleInput.focus(); titleInput.select();
+      });
+
+      attachCardShell(el, card);
       return el;
     }
 
@@ -2819,6 +3985,7 @@
           const bc = cards.filter(c => c.boardId === card.boardId).sort((a, b) => a.order - b.order);
           const idx = bc.findIndex(c => c.id === card.id);
           const clone = { ...card, id: uid(), order: card.order + 0.5, createdAt: now(), updatedAt: now() };
+          if (card.data) clone.data = JSON.parse(JSON.stringify(card.data));
           bc.splice(idx + 1, 0, clone);
           bc.forEach((c, i) => c.order = i);
           cards.push(clone);
@@ -2832,7 +3999,7 @@
             if (ghostEl2) ghostEl2.classList.remove('cut-ghost');
             cutCardId = null;
           }
-          clipboard = { type: 'copy', card: { ...card, image: card.image } };
+          clipboard = { type: 'copy', card: { ...card, image: card.image, data: card.data ? JSON.parse(JSON.stringify(card.data)) : undefined } };
           showToast('Card copied');
         }));
         items.push(ctxItem('Cut', 'cut', () => {
@@ -2889,6 +4056,52 @@
         save(); render();
       }, { danger: true }));
 
+      // Change type submenu
+      items.push(ctxSep());
+      const currentType = card.type || 'basic';
+      CARD_TYPES.forEach(t => {
+        if (t.id === currentType) return;
+        items.push(ctxItem('→ ' + t.label + ' card', 'edit', () => {
+          const c = cards.find(c => c.id === card.id);
+          if (!c) return;
+
+          // Stash current image keyed by current type before switching
+          if (!c._imageByType) c._imageByType = {};
+          if (c.image) c._imageByType[c.type || 'basic'] = c.image;
+
+          const prevType = c.type || 'basic';
+          c.type = t.id;
+
+          // Restore image if we have one stashed for the target type
+          if (c._imageByType[t.id]) {
+            c.image = c._imageByType[t.id];
+          } else if (t.id === 'gallery' || t.id === 'list' || t.id === 'table') {
+            // Types that don't show image in the card body — hide it (stash already done above)
+            c.image = null;
+          }
+          // basic/newspaper restore: already handled by _imageByType lookup above
+
+          // Migrate image into gallery images array if switching basic/newspaper → gallery
+          if (t.id === 'gallery') {
+            if (!c.data) c.data = { images: [] };
+            if (!c.data.images) c.data.images = [];
+            // If we had an image and gallery is empty, seed it
+            const stashedImg = c._imageByType['basic'] || c._imageByType['newspaper'];
+            if (stashedImg && c.data.images.length === 0) {
+              c.data.images = [stashedImg];
+            }
+          }
+
+          // Init data for new type if missing
+          if (t.id === 'list' && !c.data) c.data = { items: [c.content || ''] };
+          if (t.id === 'table' && !c.data) c.data = { columns: ['Col 1', 'Col 2'], rows: [['', '']] };
+          if (t.id === 'gallery' && !c.data) c.data = { images: [] };
+
+          c.updatedAt = now(); save(); render();
+          showToast('Changed to ' + t.label);
+        }));
+      });
+
       openCtx(e.clientX, e.clientY, items);
     }
 
@@ -2917,6 +4130,7 @@
         if (!clipboard) return;
         const { type, card: srcCard } = clipboard;
         const newCard = { ...srcCard, id: uid(), boardId: board.id, order: 0, createdAt: now(), updatedAt: now() };
+        if (srcCard.data) newCard.data = JSON.parse(JSON.stringify(srcCard.data));
         // Shift existing orders down
         cards.filter(c => c.boardId === board.id).forEach(c => c.order++);
         cards.push(newCard);
